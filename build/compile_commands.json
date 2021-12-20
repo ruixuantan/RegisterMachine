@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/Users/ruixuan/Desktop/RegisterMachine/build",
+  "command": "/usr/bin/clang++   -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -o CMakeFiles/RegisterMachine.dir/src/RegisterMachine.cpp.o -c /Users/ruixuan/Desktop/RegisterMachine/src/RegisterMachine.cpp",
+  "file": "/Users/ruixuan/Desktop/RegisterMachine/src/RegisterMachine.cpp"
+}
+]

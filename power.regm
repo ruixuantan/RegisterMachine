@@ -1,0 +1,12 @@
+power(r1, r2)
+1. r3 = 1 # return value
+2. r4 = r1 # loop counter
+3. r5 = r3 # current addition value
+4. if r2 == 1 goto 11
+5. if r4 == 0 goto 9
+6. r3 = r3 + r5
+7. r4 = r4 - 1
+8. goto 5
+9. r2 = r2 - 1
+10. goto 2
+11. return r3
