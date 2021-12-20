@@ -81,12 +81,12 @@ clean: CMakeFiles/RegisterMachine.dir/clean
 CMakeFiles/RegisterMachine.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/RegisterMachine.dir/build.make CMakeFiles/RegisterMachine.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/RegisterMachine.dir/build.make CMakeFiles/RegisterMachine.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/ruixuan/Desktop/RegisterMachine/build/CMakeFiles --progress-num=1,2 "Built target RegisterMachine"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/ruixuan/Desktop/RegisterMachine/build/CMakeFiles --progress-num=1,2,3 "Built target RegisterMachine"
 .PHONY : CMakeFiles/RegisterMachine.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/RegisterMachine.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ruixuan/Desktop/RegisterMachine/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ruixuan/Desktop/RegisterMachine/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/RegisterMachine.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ruixuan/Desktop/RegisterMachine/build/CMakeFiles 0
 .PHONY : CMakeFiles/RegisterMachine.dir/rule

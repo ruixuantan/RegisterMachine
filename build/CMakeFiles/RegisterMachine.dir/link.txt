@@ -1,1 +1,1 @@
-/usr/bin/clang++ -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/RegisterMachine.dir/src/RegisterMachine.cpp.o -o RegisterMachine 
+/usr/bin/clang++ -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/RegisterMachine.dir/src/RegisterMachine.cpp.o CMakeFiles/RegisterMachine.dir/src/ioreader.cpp.o -o RegisterMachine 

@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/ruixuan/Desktop/RegisterMachine/src/RegisterMachine.cpp" "CMakeFiles/RegisterMachine.dir/src/RegisterMachine.cpp.o" "gcc" "CMakeFiles/RegisterMachine.dir/src/RegisterMachine.cpp.o.d"
+  "/Users/ruixuan/Desktop/RegisterMachine/src/ioreader.cpp" "CMakeFiles/RegisterMachine.dir/src/ioreader.cpp.o" "gcc" "CMakeFiles/RegisterMachine.dir/src/ioreader.cpp.o.d"
   )
 
 # Targets to which this target links.

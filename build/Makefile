@@ -153,6 +153,30 @@ src/RegisterMachine.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/RegisterMachine.dir/build.make CMakeFiles/RegisterMachine.dir/src/RegisterMachine.cpp.s
 .PHONY : src/RegisterMachine.cpp.s
 
+src/ioreader.o: src/ioreader.cpp.o
+.PHONY : src/ioreader.o
+
+# target to build an object file
+src/ioreader.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RegisterMachine.dir/build.make CMakeFiles/RegisterMachine.dir/src/ioreader.cpp.o
+.PHONY : src/ioreader.cpp.o
+
+src/ioreader.i: src/ioreader.cpp.i
+.PHONY : src/ioreader.i
+
+# target to preprocess a source file
+src/ioreader.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RegisterMachine.dir/build.make CMakeFiles/RegisterMachine.dir/src/ioreader.cpp.i
+.PHONY : src/ioreader.cpp.i
+
+src/ioreader.s: src/ioreader.cpp.s
+.PHONY : src/ioreader.s
+
+# target to generate assembly for a file
+src/ioreader.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RegisterMachine.dir/build.make CMakeFiles/RegisterMachine.dir/src/ioreader.cpp.s
+.PHONY : src/ioreader.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -165,6 +189,9 @@ help:
 	@echo "... src/RegisterMachine.o"
 	@echo "... src/RegisterMachine.i"
 	@echo "... src/RegisterMachine.s"
+	@echo "... src/ioreader.o"
+	@echo "... src/ioreader.i"
+	@echo "... src/ioreader.s"
 .PHONY : help
 
 
