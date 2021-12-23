@@ -5,8 +5,10 @@
 
 namespace IOReader {
   std::vector<std::string> readFile(std::string filename);
-  std::vector<int> readInitialArgs(int argc, char **argv);
-  void print(std::string toPrint);
+  void printSuccess(std::string registerToPrint);
+  void printArgsError(std::string msg);
+  void printCompilationError(std::string msg, int lineNumber);
+  void printRuntimeError(std::string msg);
 };
 
 #endif

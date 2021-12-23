@@ -21,15 +21,19 @@ namespace IOReader {
     return vector;
   };
 
-  std::vector<int> readInitialArgs(int argc, char **argv) {
-    std::vector<int> arguments{};
-    for (int i = 2; i < argc; i++) {
-      arguments.push_back(atoi(argv[i]));
-    }
-    return arguments;
+  void printSuccess(std::string registerToPrint) {
+    std::cout << "Program terminated successfully\n" << registerToPrint << "\n";
   }
 
-  void print(std::string toPrint) {
-    std::cout << toPrint << "\n";
+  void printArgsError(std::string msg) {
+    std::cerr << "Argument error: " << msg << "\n";
+  }
+
+  void printCompilationError(std::string msg, int lineNumber) {
+    std::cerr << "Compilation error on line: " << lineNumber << "\nError: " << msg << "\n";
+  }
+  
+  void printRuntimeError(std::string msg) {
+    std::cerr << "Program terminated unsuccessfully: " << msg << "\n";
   }
 }

@@ -17,19 +17,27 @@ int main(int argc, char **argv) {
   Parser parser{};
   Executor ex{};
 
-  std::vector<int> args { IOReader::readInitialArgs(argc, argv) };
-  std::vector<std::string> lines { IOReader::readFile(filename) };
-  std::vector<int> initialRegisters { parser.parseDeclarationLine(lines[0])};
-  
-  reg.setRegisters(args, initialRegisters);
+  try {
+    std::vector<int> args { parser.parseInitialArgs(argc, argv) };
+    std::vector<std::string> lines { IOReader::readFile(filename) };
+    std::vector<int> initialRegisters { parser.parseDeclarationLine(lines[0])};
+      
+    reg.setRegisters(args, initialRegisters);
 
-  std::vector<Operator*> operators = parser.parse(lines);
-  int returnRegister { ex.execute(operators, reg) };
+    std::vector<Operator*> operators = parser.parse(lines);
+    
+    int returnRegister { ex.execute(operators, reg) };
 
-  if (returnRegister == TERMINATE_LINE_NUMBER) {
-    IOReader::print("Program terminated with an error");
-  } else {
-    IOReader::print("Program terminated successfully\n" + reg.printRegister(returnRegister));
+    if (returnRegister == TERMINATE_LINE_NUMBER) {
+      IOReader::printRuntimeError("Unknown error");
+    } else {
+      IOReader::printSuccess(reg.printRegister(returnRegister));
+    }
+
+  } catch (const ParseArgsException& e) {
+    IOReader::printArgsError(e.what());
+  } catch (const ParseException& e) {
+    IOReader::printCompilationError(e.what(), e.getLineNumber());
   }
 
   return 0;
