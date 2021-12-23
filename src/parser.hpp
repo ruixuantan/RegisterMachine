@@ -6,7 +6,7 @@
 
 class Parser {
   private:
-    Operator* parseLine(std::string &line, int lineNumber);
+    Operator* parseLine(std::string &line, int length, int lineNumber);
   public:
     std::vector<int> parseInitialArgs(int argc, char **argv);
     std::vector<int> parseDeclarationLine(std::string &line);

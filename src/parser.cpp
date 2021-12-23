@@ -12,6 +12,7 @@ const char RegisterDelimiter = ',';
 const char LineNumberToken = '.';
 const char RegisterToken = 'r';
 const char DelimiterToken = ' ';
+const char CommentToken = '#';
 
 const int EMPTY_LINE_NUMBER = -1;
 
@@ -28,6 +29,41 @@ std::vector<int> Parser::parseInitialArgs(int argc, char **argv) {
 }
 
 namespace ParseLib {
+  /**
+   * @brief Get the length of the effective line to be parsed.
+   * The effective length excludes trailing whitespaces or comments.
+   * 
+   * @param line 
+   * @param lineNumber current line number being parsed
+   * @return int 
+   */
+  int getLineLength(std::string &line, int lineNumber) {
+    int length = line.size();
+    int idx {length};
+    for (int i = 0; i < length; i++) {
+      if (line[i] == CommentToken) {
+        idx = i;
+        break;
+      }
+    }
+    
+    while(idx > 0) {
+      if (line[idx - 1] == DelimiterToken) {
+        idx--;
+      } else {
+        return idx;
+      }
+    }
+    throw ParseException("Empty line detected", lineNumber);
+  }
+  
+  /**
+   * @brief Get the register number from a string.
+   * 
+   * @param registerStr the register string, for example 'r4'/'r24'
+   * @param lineNumber current line number being parsed
+   * @return int
+   */
   int getRegisterNumber(std::string &registerStr, int lineNumber) {
     try {
       return std::stoi(registerStr.substr(1, registerStr.size()));
@@ -36,6 +72,15 @@ namespace ParseLib {
     }
   }
 
+  /**
+   * @brief Converts the string from idx to the end, to a number
+   * 
+   * @param line 
+   * @param length effective length of the string
+   * @param idx the starting index to parse
+   * @param lineNumber current line number being parsed
+   * @return int 
+   */
   int parseNumber(std::string &line, int length, int idx, int lineNumber) {
     std::string numberStr {""};
     for (int i = idx; i < length; i++) {
@@ -48,6 +93,10 @@ namespace ParseLib {
     }
   }
 
+  /**
+   * @brief Parses the line number.
+   * Expects a '.' to terminate the line.
+   */
   int parseLineNumber(std::string &line, int length, int idx, int lineNumber) {
     for (int i = idx; i < length; i++) {
       if (line[i] == LineNumberToken) {
@@ -58,6 +107,15 @@ namespace ParseLib {
     throw ParseException("Line number did not terminate with '.'", lineNumber);
   }
 
+  /**
+   * @brief Get the token from the string.
+   * 
+   * @param line the current line being parsed
+   * @param length the effective length of the string
+   * @param idx the starting index to being parsing
+   * @param lineNumber current line being parsed
+   * @return std::string 
+   */
   std::string getToken(std::string &line, int length, int &idx, int lineNumber) {
     std::string token{""};
     for (int i = idx; i < length; i++) {
@@ -94,9 +152,8 @@ namespace ParseLib {
   }
 }
 
-Operator* Parser::parseLine(std::string &line, int lineNumber) {
+Operator* Parser::parseLine(std::string &line, int length, int lineNumber) {
   int idx { 0 };
-  int length = line.size();
   idx = ParseLib::parseLineNumber(line, length, idx, lineNumber);
 
   // Tokens could be either 'return' or 'rX'
@@ -159,14 +216,14 @@ std::vector<int> Parser::parseDeclarationLine(std::string &line) {
     }
     idx++;
   }
-
   return registerNumbers; 
 }
 
 std::vector<Operator*> Parser::parse(std::vector<std::string> lines) {
   std::vector<Operator*> operators {};
   for (int i = 1; i < lines.size(); i++) {
-    Operator *o = parseLine(lines[i], i);
+    int lineLength { ParseLib::getLineLength(lines[i], i) };
+    Operator *o { parseLine(lines[i], lineLength, i) };
     operators.push_back(o);
   }
   return operators;
