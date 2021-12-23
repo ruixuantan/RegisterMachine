@@ -3,9 +3,10 @@
 
 #include <string>
 
-class IOReader {
-  public:
-    std::vector<std::string> readFile(std::string filename);
+namespace IOReader {
+  std::vector<std::string> readFile(std::string filename);
+  std::vector<int> readInitialArgs(int argc, char **argv);
+  void print(std::string toPrint);
 };
 
 #endif
