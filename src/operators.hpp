@@ -76,6 +76,15 @@ class AssignmentOperator: public Operator {
     int exec(int programCounter, Register &r) const override;
 };
 
+class GotoOperator: public Operator {
+  private:
+    int lineNumber;
+  public:
+    GotoOperator(int lineNumber);
+    static std::string keyword;
+    int exec(int programCounter, Register &r) const override;
+};
+
 class ReturnOperator: public Operator {
   private:
     int returnRegNumber;

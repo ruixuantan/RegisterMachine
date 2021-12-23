@@ -38,6 +38,8 @@ int main(int argc, char **argv) {
     IOReader::printArgsError(e.what());
   } catch (const ParseException& e) {
     IOReader::printCompilationError(e.what(), e.getLineNumber());
+  } catch (const RuntimeException& e) {
+    IOReader::printRuntimeError(e.what());
   }
 
   return 0;
