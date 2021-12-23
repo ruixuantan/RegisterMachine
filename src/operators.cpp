@@ -23,7 +23,7 @@ int AddOperator::eval() const {
 std::string SubtractOperator::keyword { "-" };
 
 SubtractOperator::SubtractOperator(int lhsToken, int rhsToken)
-  : BinaryOperator{"-", lhsToken, rhsToken} {};
+  : BinaryOperator{SubtractOperator::keyword, lhsToken, rhsToken} {};
 
 int SubtractOperator::eval() const {
   return this->lhsToken + this->rhsToken;
