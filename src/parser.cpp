@@ -13,19 +13,59 @@ const char LineNumberToken = '.';
 const char RegisterToken = 'r';
 const char DelimiterToken = ' ';
 
-int getRegisterNumber(std::string registerStr) {
-  return stoi(registerStr.substr(1, registerStr.size()));
+const int EMPTY_LINE_NUMBER = -1;
+
+std::vector<int> Parser::parseInitialArgs(int argc, char **argv) {
+  std::vector<int> arguments{};
+  for (int i = 2; i < argc; i++) {
+    try {
+      arguments.push_back(std::stoi(argv[i]));
+    } catch (std::invalid_argument) {
+      throw ParseArgsException("Arguments passed to program must be an integer");
+    }
+  }
+  return arguments;
 }
 
-int parseReturn(std::string &line, int length, int idx) {
+int getRegisterNumber(std::string &registerStr, int lineNumber) {
+  try {
+    return std::stoi(registerStr.substr(1, registerStr.size()));
+  } catch (std::invalid_argument) {
+      throw ParseException("Register number passed is invalid", lineNumber);
+  }
+}
+
+int parseLineNumber(std::string &line, int length, int idx, int lineNumber) {
+  for (int i = idx; i < length; i++) {
+    if (line[i] == LineNumberToken) {
+      i += 2;
+      return i;
+    }
+  }
+  throw ParseException("Line number did not terminate with '.'", lineNumber);
+}
+
+std::string getToken(std::string &line, int length, int &idx, int lineNumber) {
+  std::string token{""};
+  for (int i = idx; i < length; i++) {
+    if (line[i] == DelimiterToken) {
+      idx = i + 1;
+      return token;
+    }
+    token += line[i];
+  }
+  throw ParseException("Whitespaces not detected", lineNumber); 
+}
+
+int parseReturn(std::string &line, int length, int idx, int lineNumber) {
   std::string reg { "" };
   for(int i = idx; i < length; i++) {
     reg += line[i];
   }
-  return getRegisterNumber(reg);
+  return getRegisterNumber(reg, lineNumber);
 }
 
-int parseAssignment(std::string &line, int length, int idx) {
+int parseAssignment(std::string &line, int length, int idx, int lineNumber) {
   std::string reg {""};
   while(line[idx] != DelimiterToken) {
     idx++;
@@ -33,70 +73,101 @@ int parseAssignment(std::string &line, int length, int idx) {
   for(int i = idx + 1; i < length; i++) {
     reg += line[i];
   }
-  return stoi(reg);
+  try {
+    return std::stoi(reg);
+  } catch (std::invalid_argument) {
+    throw ParseException("Integer is not passed to the register", lineNumber);
+  }
 }
 
-Operator* Parser::parseLine(std::string &line) {
+Operator* Parser::parseLine(std::string &line, int lineNumber) {
   int idx { 0 };
   int length = line.size();
-
-  while(line[idx] != LineNumberToken) {
-    idx++;
-  }
-  idx += 2;
+  idx = parseLineNumber(line, length, idx, lineNumber);
 
   // Tokens could be either 'return' or 'rX'
-  std::string token { "" };
-  while(line[idx] != DelimiterToken) {
-    token += line[idx];
-    idx++;
-  }
+  std::string token = getToken(line, length, idx, lineNumber);
 
   if (token == ReturnOperator::keyword) {
     // Expecting ' rX'
-    int toReturn = parseReturn(line, length, idx + 1);
+    int toReturn = parseReturn(line, length, idx, lineNumber);
     return new ReturnOperator{toReturn};
   } 
 
   if (token.front() == RegisterToken) {
-    // Expecting ' == X'
-    int regNumber { getRegisterNumber(token) };
-    int value = parseAssignment(line, length, idx + 1);
+    // Expecting ' = X'
+    int regNumber { getRegisterNumber(token, lineNumber) };
+    int value = parseAssignment(line, length, idx + 1, lineNumber);
     return new AssignmentOperator{regNumber, value};
   }
 
-  return new ReturnOperator{TERMINATE_LINE_NUMBER};
+  throw ParseException("No valid syntax detected", lineNumber);
 }
 
 std::vector<int> Parser::parseDeclarationLine(std::string &line) {
-  int idx { 0 };
+  int length = line.size();
   std::vector<int> registerNumbers {};
-  
-  while (line[idx] != BeginBracketToken) {
-    idx++;
+ 
+  int startIdx {0};
+  int endIdx {0};
+  for (int i = 0; i < length; i++) {
+    if (line[i] == BeginBracketToken) {
+      startIdx = i;
+    }
+    if (line[i] == EndBracketToken) {
+      endIdx = i;
+    }
   }
 
-  while (line[idx] != EndBracketToken) {
-    idx++;
+  if (startIdx == 0) {
+    throw ParseException("Bracket '(' not found in declaration", 0);
+  }
+
+  if (endIdx == 0) {
+    throw ParseException("Bracket ')' not found in declaration", 0);
+  }
+
+  int idx { startIdx };
+
+  while(idx < endIdx) {
     if (line[idx] == RegisterToken) {
-      idx++;
       std::string registerNumberStr { "" };
       while(line[idx] != RegisterDelimiter && line[idx] != EndBracketToken) {
         registerNumberStr += line[idx];
         idx++;
       }
-      registerNumbers.push_back(stoi(registerNumberStr));
+      int n = getRegisterNumber(registerNumberStr, 0);
+      registerNumbers.push_back(n);
     }
+    idx++;
   }
 
-  return registerNumbers;
+  return registerNumbers; 
 }
 
 std::vector<Operator*> Parser::parse(std::vector<std::string> lines) {
   std::vector<Operator*> operators {};
   for (int i = 1; i < lines.size(); i++) {
-    Operator *o = parseLine(lines[i]);
+    Operator *o = parseLine(lines[i], i);
     operators.push_back(o);
   }
   return operators;
+}
+
+ParseException::ParseException(std::string error, int lineNumber)
+  : error{error}, lineNumber{lineNumber} {}
+
+int ParseException::getLineNumber() const {
+  return this->lineNumber;
+}
+
+const char* ParseException::what() const noexcept {
+  return this->error.c_str();
+}
+
+ParseArgsException::ParseArgsException(std::string error)
+  : error{error} {}
+
+const char* ParseArgsException::what() const noexcept {
+  return this->error.c_str();
 }
