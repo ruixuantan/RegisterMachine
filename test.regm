@@ -1,3 +1,5 @@
 test(r1, r3)
 1. r1 = 2
-2. return r3
+2. goto 4
+3. r1 = 3
+4. return r1

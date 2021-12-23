@@ -75,6 +75,15 @@ int AssignmentOperator::exec(int programCounter, Register &r) const {
   return ++programCounter;
 }
 
+std::string GotoOperator::keyword { "goto" };
+
+GotoOperator::GotoOperator(int lineNumber)
+  : Operator{GotoOperator::keyword}, lineNumber{lineNumber} {};
+
+int GotoOperator::exec(int programCounter, Register &r) const {
+  return this->lineNumber;
+}
+
 std::string ReturnOperator::keyword { "return" };
 
 ReturnOperator::ReturnOperator(int returnRegNumber)

@@ -27,77 +27,95 @@ std::vector<int> Parser::parseInitialArgs(int argc, char **argv) {
   return arguments;
 }
 
-int getRegisterNumber(std::string &registerStr, int lineNumber) {
-  try {
-    return std::stoi(registerStr.substr(1, registerStr.size()));
-  } catch (std::invalid_argument) {
-      throw ParseException("Register number passed is invalid", lineNumber);
-  }
-}
-
-int parseLineNumber(std::string &line, int length, int idx, int lineNumber) {
-  for (int i = idx; i < length; i++) {
-    if (line[i] == LineNumberToken) {
-      i += 2;
-      return i;
+namespace ParseLib {
+  int getRegisterNumber(std::string &registerStr, int lineNumber) {
+    try {
+      return std::stoi(registerStr.substr(1, registerStr.size()));
+    } catch (std::invalid_argument) {
+        throw ParseException("Register number passed is invalid", lineNumber);
     }
   }
-  throw ParseException("Line number did not terminate with '.'", lineNumber);
-}
 
-std::string getToken(std::string &line, int length, int &idx, int lineNumber) {
-  std::string token{""};
-  for (int i = idx; i < length; i++) {
-    if (line[i] == DelimiterToken) {
-      idx = i + 1;
-      return token;
+  int parseNumber(std::string &line, int length, int idx, int lineNumber) {
+    std::string numberStr {""};
+    for (int i = idx; i < length; i++) {
+      numberStr += line[i];
     }
-    token += line[i];
+    try {
+      return std::stoi(numberStr);
+    } catch (std::invalid_argument) {
+      throw ParseException("Number passed is not an integer", lineNumber);
+    }
   }
-  throw ParseException("Whitespaces not detected", lineNumber); 
-}
 
-int parseReturn(std::string &line, int length, int idx, int lineNumber) {
-  std::string reg { "" };
-  for(int i = idx; i < length; i++) {
-    reg += line[i];
+  int parseLineNumber(std::string &line, int length, int idx, int lineNumber) {
+    for (int i = idx; i < length; i++) {
+      if (line[i] == LineNumberToken) {
+        i += 2;
+        return i;
+      }
+    }
+    throw ParseException("Line number did not terminate with '.'", lineNumber);
   }
-  return getRegisterNumber(reg, lineNumber);
-}
 
-int parseAssignment(std::string &line, int length, int idx, int lineNumber) {
-  std::string reg {""};
-  while(line[idx] != DelimiterToken) {
-    idx++;
+  std::string getToken(std::string &line, int length, int &idx, int lineNumber) {
+    std::string token{""};
+    for (int i = idx; i < length; i++) {
+      if (line[i] == DelimiterToken) {
+        idx = i + 1;
+        return token;
+      }
+      token += line[i];
+    }
+    throw ParseException("Whitespaces not detected", lineNumber); 
   }
-  for(int i = idx + 1; i < length; i++) {
-    reg += line[i];
+
+  int parseReturn(std::string &line, int length, int idx, int lineNumber) {
+    std::string reg { "" };
+    for(int i = idx; i < length; i++) {
+      reg += line[i];
+    }
+    return getRegisterNumber(reg, lineNumber);
   }
-  try {
-    return std::stoi(reg);
-  } catch (std::invalid_argument) {
-    throw ParseException("Integer is not passed to the register", lineNumber);
+
+  int parseAssignment(std::string &line, int length, int idx, int lineNumber) {
+    std::string reg {""};
+    while(line[idx] != DelimiterToken) {
+      idx++;
+    }
+    for(int i = idx + 1; i < length; i++) {
+      reg += line[i];
+    }
+    try {
+      return std::stoi(reg);
+    } catch (std::invalid_argument) {
+      throw ParseException("Integer is not passed to the register", lineNumber);
+    }
   }
 }
 
 Operator* Parser::parseLine(std::string &line, int lineNumber) {
   int idx { 0 };
   int length = line.size();
-  idx = parseLineNumber(line, length, idx, lineNumber);
+  idx = ParseLib::parseLineNumber(line, length, idx, lineNumber);
 
   // Tokens could be either 'return' or 'rX'
-  std::string token = getToken(line, length, idx, lineNumber);
+  std::string token = ParseLib::getToken(line, length, idx, lineNumber);
 
   if (token == ReturnOperator::keyword) {
     // Expecting ' rX'
-    int toReturn = parseReturn(line, length, idx, lineNumber);
+    int toReturn = ParseLib::parseReturn(line, length, idx, lineNumber);
     return new ReturnOperator{toReturn};
+  } else if (token == GotoOperator::keyword) {
+    // Expecting ' X'
+    int number = ParseLib::parseNumber(line, length, idx, lineNumber);
+    return new GotoOperator{number};
   } 
 
   if (token.front() == RegisterToken) {
     // Expecting ' = X'
-    int regNumber { getRegisterNumber(token, lineNumber) };
-    int value = parseAssignment(line, length, idx + 1, lineNumber);
+    int regNumber { ParseLib::getRegisterNumber(token, lineNumber) };
+    int value = ParseLib::parseAssignment(line, length, idx + 1, lineNumber);
     return new AssignmentOperator{regNumber, value};
   }
 
@@ -136,7 +154,7 @@ std::vector<int> Parser::parseDeclarationLine(std::string &line) {
         registerNumberStr += line[idx];
         idx++;
       }
-      int n = getRegisterNumber(registerNumberStr, 0);
+      int n = ParseLib::getRegisterNumber(registerNumberStr, 0);
       registerNumbers.push_back(n);
     }
     idx++;

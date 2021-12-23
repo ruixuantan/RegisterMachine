@@ -34,6 +34,6 @@ namespace IOReader {
   }
   
   void printRuntimeError(std::string msg) {
-    std::cerr << "Program terminated unsuccessfully: " << msg << "\n";
+    std::cerr << "Program terminated unsuccessfully:\n" << msg << "\n";
   }
 }
