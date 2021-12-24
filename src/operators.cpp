@@ -4,29 +4,47 @@
 #include <string>
 #include <iostream>
 
-BinaryOperator::BinaryOperator(std::string keyword, int lhsToken, int rhsToken)
-  : keyword{keyword}, lhsToken{lhsToken}, rhsToken{rhsToken} {}
+Variable::Variable()
+  : value{ 0 }, isRegister{ false } {}
+
+Variable::Variable(int value, bool isRegister)
+  : value{ value }, isRegister{ isRegister } {}
+
+int Variable::eval(Register &r) const {
+  if (this->isRegister) {
+    return r.getRegister(this->value); 
+  } else {
+    return this->value;
+  }
+}
+
+BinaryOperator::BinaryOperator(std::string keyword, Variable lhs, Variable rhs)
+  : keyword{keyword}, lhs{lhs}, rhs{rhs} {}
 
 std::string BinaryOperator::getKeyword() const {
   return this->keyword;
 }
 
+int BinaryOperator::eval(Register &r) const {
+  return 0;
+}
+
 std::string AddOperator::keyword { "+" };
 
-AddOperator::AddOperator(int lhsToken, int rhsToken)
-  : BinaryOperator{AddOperator::keyword, lhsToken, rhsToken} {};
+AddOperator::AddOperator(Variable lhs, Variable rhs)
+  : BinaryOperator{AddOperator::keyword, lhs, rhs} {};
 
-int AddOperator::eval() const {
-  return this->lhsToken + this->rhsToken;
+int AddOperator::eval(Register &r) const {
+  return this->lhs.eval(r) + this->rhs.eval(r);
 }
 
 std::string SubtractOperator::keyword { "-" };
 
-SubtractOperator::SubtractOperator(int lhsToken, int rhsToken)
-  : BinaryOperator{SubtractOperator::keyword, lhsToken, rhsToken} {};
+SubtractOperator::SubtractOperator(Variable lhs, Variable rhs)
+  : BinaryOperator{SubtractOperator::keyword, lhs, rhs} {};
 
-int SubtractOperator::eval() const {
-  return this->lhsToken + this->rhsToken;
+int SubtractOperator::eval(Register &r) const {
+  return this->lhs.eval(r) - this->rhs.eval(r);
 }
 
 ComparisonOperator::ComparisonOperator(std::string keyword, int lhsToken, int rhsToken)
@@ -67,11 +85,11 @@ int Operator::exec(int programCounter, Register &r) const {
 
 std::string AssignmentOperator::keyword = "=";
 
-AssignmentOperator::AssignmentOperator(int regNumber, int value)
-  : Operator{AssignmentOperator::keyword}, regNumber{regNumber}, value{value} {};
+AssignmentOperator::AssignmentOperator(int regNumber, std::unique_ptr<BinaryOperator> op)
+  : Operator{AssignmentOperator::keyword}, regNumber{regNumber}, op{std::move(op)} {};
 
 int AssignmentOperator::exec(int programCounter, Register &r) const {
-  r.setRegister(this->value, this->regNumber);
+  r.setRegister(op->eval(r), this->regNumber);
   return ++programCounter;
 }
 

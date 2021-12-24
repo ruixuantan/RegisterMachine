@@ -12,11 +12,17 @@ Register::Register() {
 }
 
 void Register::setRegister(int value, int regNumber) {
+  if (value < 0) {
+    throw RegisterException(regNumber, "Values must be less than 0"); 
+  }
   this->reg[regNumber - 1] = value;
 }
 
 void Register::setRegisters(std::vector<int> values, std::vector<int> regNumbers) {
   for (int i = 0; i < values.size(); i++) {
+    if (values[i] < 0) {
+      throw RegisterException(regNumbers[i], "Values must be less than 0"); 
+    }
     this->reg[regNumbers[i] - 1] = values[i];
   }
 }
@@ -35,4 +41,15 @@ std::string Register::printRegisters(int start, int end) const {
     registerString += "r" + std::to_string(i + 1) + ": " + std::to_string(this->reg[i]) +"\n";
   }
   return registerString;
+}
+
+RegisterException::RegisterException(int regNumber, std::string error)
+  : regNumber{regNumber}, error{error} {}
+
+int RegisterException::getRegNumber() const {
+  return this->regNumber;
+}
+
+const char* RegisterException::what() const noexcept {
+  return this->error.c_str();
 }

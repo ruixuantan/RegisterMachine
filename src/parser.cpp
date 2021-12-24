@@ -73,6 +73,21 @@ namespace ParseLib {
   }
 
   /**
+   * @brief Converts number string to int
+   * 
+   * @param numberStr 
+   * @param lineNumber 
+   * @return int 
+   */
+  int getNumber(std::string &numberStr, int lineNumber) {
+    try {
+      return std::stoi(numberStr);
+    } catch (std::invalid_argument) {
+      throw ParseException("Number passed is not an integer", lineNumber);
+    }
+  }
+
+  /**
    * @brief Converts the string from idx to the end, to a number
    * 
    * @param line 
@@ -81,7 +96,7 @@ namespace ParseLib {
    * @param lineNumber current line number being parsed
    * @return int 
    */
-  int parseNumber(std::string &line, int length, int idx, int lineNumber) {
+  int parseNumberToEnd(std::string &line, int length, int idx, int lineNumber) {
     std::string numberStr {""};
     for (int i = idx; i < length; i++) {
       numberStr += line[i];
@@ -136,18 +151,49 @@ namespace ParseLib {
     return getRegisterNumber(reg, lineNumber);
   }
 
-  int parseAssignment(std::string &line, int length, int idx, int lineNumber) {
-    std::string reg {""};
+  std::unique_ptr<BinaryOperator> parseAssignment(std::string &line, int length, int idx, int lineNumber) {
     while(line[idx] != DelimiterToken) {
       idx++;
     }
-    for(int i = idx + 1; i < length; i++) {
-      reg += line[i];
+    idx++;
+  
+    std::string lhs {""};
+    while(line[idx] != DelimiterToken && idx < length) {
+      lhs += line[idx];
+      idx++;
     }
-    try {
-      return std::stoi(reg);
-    } catch (std::invalid_argument) {
-      throw ParseException("Integer is not passed to the register", lineNumber);
+    Variable lhsVar;
+    Variable rhsVar;
+  
+    if (lhs.front() == RegisterToken) {
+      lhsVar = Variable(getRegisterNumber(lhs, lineNumber), true);
+    } else {
+      lhsVar = Variable(getNumber(lhs, lineNumber), false);
+    }
+
+    if (idx == length) {
+      return std::unique_ptr<AddOperator>(new AddOperator(lhsVar, rhsVar));
+    }
+
+    idx++;
+    std::string op {line[idx]};
+    std::string rhs {""};
+    for (int i = idx + 2; i < length; i++) {
+      rhs += line[i];
+    }
+
+    if (rhs.front() == RegisterToken) {
+      rhsVar = Variable(getRegisterNumber(rhs, lineNumber), true);
+    } else {
+      rhsVar = Variable(getNumber(rhs, lineNumber), false);
+    }
+
+    if (op == AddOperator::keyword) {
+      return std::unique_ptr<AddOperator>(new AddOperator(lhsVar, rhsVar)); 
+    } else if (op == SubtractOperator::keyword) {
+      return std::unique_ptr<SubtractOperator>(new SubtractOperator(lhsVar, rhsVar)); 
+    } else {
+      throw ParseException("Operator is not recognised", lineNumber);
     }
   }
 }
@@ -165,15 +211,15 @@ Operator* Parser::parseLine(std::string &line, int length, int lineNumber) {
     return new ReturnOperator{toReturn};
   } else if (token == GotoOperator::keyword) {
     // Expecting ' X'
-    int number = ParseLib::parseNumber(line, length, idx, lineNumber);
+    int number = ParseLib::parseNumberToEnd(line, length, idx, lineNumber);
     return new GotoOperator{number};
   } 
 
   if (token.front() == RegisterToken) {
-    // Expecting ' = X'
+    // Expecting ' = X/rX + X/rX'
     int regNumber { ParseLib::getRegisterNumber(token, lineNumber) };
-    int value = ParseLib::parseAssignment(line, length, idx + 1, lineNumber);
-    return new AssignmentOperator{regNumber, value};
+    return new AssignmentOperator{
+      regNumber, ParseLib::parseAssignment(line, length, idx + 1, lineNumber)};
   }
 
   throw ParseException("No valid syntax detected", lineNumber);
