@@ -40,6 +40,8 @@ int main(int argc, char **argv) {
     IOReader::printCompilationError(e.what(), e.getLineNumber());
   } catch (const RuntimeException& e) {
     IOReader::printRuntimeError(e.what());
+  } catch (const RegisterException& e) {
+    IOReader::printRegisterError(e.what(), e.getRegNumber());
   }
 
   return 0;

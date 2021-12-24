@@ -9,6 +9,7 @@ namespace IOReader {
   void printArgsError(std::string msg);
   void printCompilationError(std::string msg, int lineNumber);
   void printRuntimeError(std::string msg);
+  void printRegisterError(std::string msg, int regNumber);
 };
 
 #endif

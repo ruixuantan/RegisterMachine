@@ -7,29 +7,40 @@
 
 const int TERMINATE_LINE_NUMBER { -1 };
 
+class Variable {
+  private:
+    int value;
+    bool isRegister;
+  public:
+    Variable();
+    Variable(int value, bool isRegister);
+    int eval(Register &r) const;
+};
+
 class BinaryOperator {
   protected:
     std::string keyword;
-    int lhsToken;
-    int rhsToken;
+    Variable lhs;
+    Variable rhs;
 
   public:
-    BinaryOperator(std::string keyword, int lhsToken, int rhsToken);
+    BinaryOperator(std::string keyword, Variable lhs, Variable rhs);
     std::string getKeyword() const;
+    virtual int eval(Register &r) const;
 };
 
 class AddOperator: public BinaryOperator {
   public:
-    AddOperator(int lhsToken, int rhsToken);
+    AddOperator(Variable lhs, Variable rhs);
     static std::string keyword;
-    int eval() const;
+    int eval(Register &r) const override;
 };
 
 class SubtractOperator: public BinaryOperator {
   public:
-    SubtractOperator(int lhsToken, int rhsToken);
+    SubtractOperator(Variable lhs, Variable rhs);
     static std::string keyword;
-    int eval() const;
+    int eval(Register &r) const override;
 };
 
 class ComparisonOperator {
@@ -69,9 +80,9 @@ class Operator {
 class AssignmentOperator: public Operator {
   private:
     int regNumber;
-    int value;
+    std::unique_ptr<BinaryOperator> op;
   public:
-    AssignmentOperator(int regNumber, int value);
+    AssignmentOperator(int regNumber, std::unique_ptr<BinaryOperator> op);
     static std::string keyword;
     int exec(int programCounter, Register &r) const override;
 };
