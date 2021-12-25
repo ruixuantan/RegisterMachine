@@ -1,15 +1,23 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(RegisterMachine)
-add_executable(RegisterMachine 
-  src/RegisterMachine.cpp 
-  src/ioreader.cpp
-  src/parser.cpp
-  src/operators.cpp
-  src/register.cpp
-  src/executor.cpp
-)
+
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-std=gnu++17")
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+include_directories(src)
+
+add_subdirectory(src)
+add_subdirectory(tests)
+
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+)
+
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
