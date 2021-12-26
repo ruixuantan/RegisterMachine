@@ -37,13 +37,11 @@ Variable BinaryOperator::getRhs() const {
   return this->rhs;
 }
 
-int BinaryOperator::eval(Register &r) const {
-  return 0;
-}
-
 bool operator== (const BinaryOperator& o1, const BinaryOperator& o2) {
   return o1.keyword == o2.keyword && o1.lhs == o2.lhs && o1.rhs == o2.rhs;
 }
+
+BinaryOperator::~BinaryOperator() {};
 
 std::string AddOperator::keyword { "+" };
 
@@ -54,6 +52,8 @@ int AddOperator::eval(Register &r) const {
   return this->lhs.eval(r) + this->rhs.eval(r);
 }
 
+AddOperator::~AddOperator() {};
+
 std::string SubtractOperator::keyword { "-" };
 
 SubtractOperator::SubtractOperator(Variable lhs, Variable rhs)
@@ -62,6 +62,8 @@ SubtractOperator::SubtractOperator(Variable lhs, Variable rhs)
 int SubtractOperator::eval(Register &r) const {
   return this->lhs.eval(r) - this->rhs.eval(r);
 }
+
+SubtractOperator::~SubtractOperator() {};
 
 ComparisonOperator::ComparisonOperator(std::string keyword, int lhsToken, int rhsToken)
   : keyword{keyword}, lhsToken{lhsToken}, rhsToken{rhsToken} {}
@@ -95,9 +97,7 @@ std::string Operator::getKeyword() const {
   return this->keyword;
 }
 
-int Operator::exec(int programCounter, Register &r) const {
-  return TERMINATE_LINE_NUMBER;
-}
+Operator::~Operator() {}
 
 std::string AssignmentOperator::keyword = "=";
 
@@ -109,6 +109,8 @@ int AssignmentOperator::exec(int programCounter, Register &r) const {
   return ++programCounter;
 }
 
+AssignmentOperator::~AssignmentOperator() {}
+
 std::string GotoOperator::keyword { "goto" };
 
 GotoOperator::GotoOperator(int lineNumber)
@@ -118,6 +120,8 @@ int GotoOperator::exec(int programCounter, Register &r) const {
   return this->lineNumber;
 }
 
+GotoOperator::~GotoOperator() {}
+
 std::string ReturnOperator::keyword { "return" };
 
 ReturnOperator::ReturnOperator(int returnRegNumber)
@@ -126,3 +130,5 @@ ReturnOperator::ReturnOperator(int returnRegNumber)
 int ReturnOperator::exec(int programCounter, Register &r) const {
   return this->returnRegNumber;
 }
+
+ReturnOperator::~ReturnOperator() {}

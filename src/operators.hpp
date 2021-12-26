@@ -30,7 +30,8 @@ class BinaryOperator {
     Variable getLhs() const;
     Variable getRhs() const;
     friend bool operator== (const BinaryOperator& o1, const BinaryOperator& o2);
-    virtual int eval(Register &r) const;
+    virtual int eval(Register &r) const = 0;
+    virtual ~BinaryOperator();
 };
 
 class AddOperator: public BinaryOperator {
@@ -38,6 +39,7 @@ class AddOperator: public BinaryOperator {
     AddOperator(Variable lhs, Variable rhs);
     static std::string keyword;
     int eval(Register &r) const override;
+    virtual ~AddOperator();
 };
 
 class SubtractOperator: public BinaryOperator {
@@ -45,6 +47,7 @@ class SubtractOperator: public BinaryOperator {
     SubtractOperator(Variable lhs, Variable rhs);
     static std::string keyword;
     int eval(Register &r) const override;
+    virtual ~SubtractOperator();
 };
 
 class ComparisonOperator {
@@ -78,7 +81,8 @@ class Operator {
   public:
     Operator(std::string keyword);
     std::string getKeyword() const;
-    virtual int exec(int programCounter, Register &r) const;
+    virtual int exec(int programCounter, Register &r) const = 0;
+    virtual ~Operator();
 };
 
 class AssignmentOperator: public Operator {
@@ -89,6 +93,7 @@ class AssignmentOperator: public Operator {
     AssignmentOperator(int regNumber, std::unique_ptr<BinaryOperator> op);
     static std::string keyword;
     int exec(int programCounter, Register &r) const override;
+    virtual ~AssignmentOperator();
 };
 
 class GotoOperator: public Operator {
@@ -98,6 +103,8 @@ class GotoOperator: public Operator {
     GotoOperator(int lineNumber);
     static std::string keyword;
     int exec(int programCounter, Register &r) const override;
+    virtual ~GotoOperator();
+
 };
 
 class ReturnOperator: public Operator {
@@ -107,6 +114,7 @@ class ReturnOperator: public Operator {
     ReturnOperator(int returnRegNumber);
     static std::string keyword;
     int exec(int programCounter, Register &r) const override;
+    virtual ~ReturnOperator();
 };
 
 #endif
