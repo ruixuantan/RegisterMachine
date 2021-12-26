@@ -33,6 +33,9 @@ jobs:
       - name: Check path
         run: echo ${{env.working_dir}}
 
+      - name: Build cache
+        run: cmake ..
+
       - name: Build project
         run: cmake --build .
 
