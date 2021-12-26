@@ -33,13 +33,11 @@ jobs:
       - name: Check path
         run: echo ${{env.working_dir}}
 
-      - name: Build cache
-        working-directory: ${{env.working_dir}}
-        run: cmake ..
+      - name: Configure Cmake
+        run: cmake -S ${{github.workspace}} -B ${{env.working_dir}}
 
-      - name: Build project
-        working-directory: ${{env.working_dir}}
-        run: cmake --build .
+      - name: Build project 
+        run: cmake --build ${{env.working_dir}} 
 
       - name: Run unit tests
         working-directory: ${{env.working_dir}}
