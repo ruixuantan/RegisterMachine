@@ -4,7 +4,7 @@
 
 *.a
 RegisterMachine
-build
+build/
 
 CMakeLists.txt.user
 CMakeFiles
