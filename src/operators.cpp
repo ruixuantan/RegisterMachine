@@ -18,6 +18,10 @@ int Variable::eval(Register &r) const {
   }
 }
 
+bool operator== (const Variable& v1, const Variable& v2) {
+  return v1.value == v2.value && v1.isRegister == v2.isRegister;
+}
+
 BinaryOperator::BinaryOperator(std::string keyword, Variable lhs, Variable rhs)
   : keyword{keyword}, lhs{lhs}, rhs{rhs} {}
 
@@ -25,8 +29,20 @@ std::string BinaryOperator::getKeyword() const {
   return this->keyword;
 }
 
+Variable BinaryOperator::getLhs() const {
+  return this->lhs;
+}
+
+Variable BinaryOperator::getRhs() const {
+  return this->rhs;
+}
+
 int BinaryOperator::eval(Register &r) const {
   return 0;
+}
+
+bool operator== (const BinaryOperator& o1, const BinaryOperator& o2) {
+  return o1.keyword == o2.keyword && o1.lhs == o2.lhs && o1.rhs == o2.rhs;
 }
 
 std::string AddOperator::keyword { "+" };

@@ -1,8 +1,18 @@
 set(BINARY ${CMAKE_PROJECT_NAME})
 
-file(GLOB_RECURSE SOURCES LIST_DIRECTORIES true *.hpp *.cpp)
-
-set(SOURCES ${SOURCES})
+set(SOURCES   
+  RegisterMachine.cpp
+  executor.hpp
+  executor.cpp
+  ioreader.hpp
+  ioreader.cpp
+  operators.hpp
+  operators.cpp
+  parser.hpp
+  parser.cpp
+  register.hpp
+  register.cpp
+)
 
 add_executable(${BINARY}_run ${SOURCES})
 
