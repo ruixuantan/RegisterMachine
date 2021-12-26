@@ -15,6 +15,7 @@ class Variable {
     Variable();
     Variable(int value, bool isRegister);
     int eval(Register &r) const;
+    friend bool operator== (const Variable& v1, const Variable& v2);
 };
 
 class BinaryOperator {
@@ -26,6 +27,9 @@ class BinaryOperator {
   public:
     BinaryOperator(std::string keyword, Variable lhs, Variable rhs);
     std::string getKeyword() const;
+    Variable getLhs() const;
+    Variable getRhs() const;
+    friend bool operator== (const BinaryOperator& o1, const BinaryOperator& o2);
     virtual int eval(Register &r) const;
 };
 

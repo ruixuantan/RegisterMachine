@@ -109,7 +109,7 @@ namespace ParseLib {
   }
 
   /**
-   * @brief Parses the line number.
+   * @brief Increments idx to the index of the token right after '<line number>. '
    * Expects a '.' to terminate the line.
    */
   int parseLineNumber(std::string &line, int length, int idx, int lineNumber) {
@@ -143,6 +143,10 @@ namespace ParseLib {
     throw ParseException("Whitespaces not detected", lineNumber); 
   }
 
+  /**
+   * @brief Gets the register number of a return operator. 
+   * idx should be at the position of 'r'
+   */
   int parseReturn(std::string &line, int length, int idx, int lineNumber) {
     std::string reg { "" };
     for(int i = idx; i < length; i++) {
