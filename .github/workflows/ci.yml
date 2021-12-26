@@ -34,10 +34,13 @@ jobs:
         run: echo ${{env.working_dir}}
 
       - name: Build cache
+        working-directory: ${{env.working_dir}}
         run: cmake ..
 
       - name: Build project
+        working-directory: ${{env.working_dir}}
         run: cmake --build .
 
       - name: Run unit tests
+        working-directory: ${{env.working_dir}}
         run: ./tests/RegisterMachine_tests
