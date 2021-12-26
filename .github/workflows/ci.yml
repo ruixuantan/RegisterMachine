@@ -1,0 +1,40 @@
+name: Register Machine CI 
+
+on: [push, pull_request]
+
+env:
+  CMAKE_VERSION: 3.22
+  working_dir: ${{github.workspace}}/build
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "macOS Latest Clang", artifact: "macOS.7z",
+            os: macos-latest,
+            cc: "clang", cxx: "clang++"
+          }
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Install dependencies on macos
+        if: startsWith(matrix.config.os, 'macos')
+        run: |
+          brew install p7zip cmake ninja
+          ninja --version
+          cmake --version
+
+      - name: Check path
+        run: echo ${{env.working_dir}}
+
+      - name: Build project
+        run: cmake --build .
+
+      - name: Run unit tests
+        run: ./tests/RegisterMachine_tests
