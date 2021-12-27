@@ -4,20 +4,21 @@
 
 #include <vector>
 #include <iostream>
+#include <string_view>
 
-int Executor::execute(std::vector<Operator*> operators, Register &r) {
+const int Executor::execute(const std::vector<Operator*> operators, Register& r) {
   int programCounter {0};
 
   while(operators[programCounter]->getKeyword() != ReturnOperator::keyword) {
     const Operator* op { operators[programCounter] };
-    std::string currKeyword = op->getKeyword();
+    std::string currKeyword { op->getKeyword() };
   
     if (currKeyword == AssignmentOperator::keyword) {
       programCounter = op->exec(programCounter, r);
     } else if (currKeyword == GotoOperator::keyword) {
       programCounter = op->exec(programCounter, r) - 1;
     } else {
-      return TERMINATE_LINE_NUMBER;
+      throw RuntimeException("An unknown error occurred");
     }
 
     if (programCounter >= operators.size()) {
@@ -29,7 +30,7 @@ int Executor::execute(std::vector<Operator*> operators, Register &r) {
   return returnRegister;
 }
 
-RuntimeException::RuntimeException(std::string error)
+RuntimeException::RuntimeException(std::string_view error)
   : error{error} {}
 
 const char* RuntimeException::what() const noexcept {

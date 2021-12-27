@@ -3,9 +3,10 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <string_view>
 
 namespace IOReader {
-  std::vector<std::string> readFile(std::string filename) {
+  const std::vector<std::string> readFile(const std::string_view filename) {
     std::vector<std::string> vector {};
     std::fstream newfile;
 
@@ -21,23 +22,23 @@ namespace IOReader {
     return vector;
   };
 
-  void printSuccess(std::string registerToPrint) {
+  void printSuccess(const std::string_view registerToPrint) {
     std::cout << "Program terminated successfully\n" << registerToPrint << "\n";
   }
 
-  void printArgsError(std::string msg) {
+  void printArgsError(const std::string_view msg) {
     std::cerr << "Argument error: " << msg << "\n";
   }
 
-  void printCompilationError(std::string msg, int lineNumber) {
+  void printCompilationError(const std::string_view msg, const int& lineNumber) {
     std::cerr << "Compilation error on line: " << lineNumber << "\nError: " << msg << "\n";
   }
   
-  void printRuntimeError(std::string msg) {
+  void printRuntimeError(const std::string_view msg) {
     std::cerr << "Program terminated unsuccessfully:\n" << msg << "\n";
   }
 
-  void printRegisterError(std::string msg, int regNumber) {
+  void printRegisterError(const std::string_view msg, const int& regNumber) {
     std::cerr << "Register error on r" << regNumber << ":\n" << msg << "\n";
   }
 }
