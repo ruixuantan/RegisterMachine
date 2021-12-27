@@ -6,6 +6,7 @@
 #include <string>
 #include <exception>
 #include <string_view>
+#include <memory>
 
 constexpr char BeginBracketToken = '(';
 constexpr char EndBracketToken = ')';
@@ -154,6 +155,16 @@ namespace ParseLib {
     return getRegisterNumber(reg, lineNumber);
   }
 
+  const Variable parseVariable(const std::string token, const int& lineNumber) {
+    Variable var{};
+    if (token.front() == RegisterToken) {
+      var = Variable(getRegisterNumber(token, lineNumber), true);
+    } else {
+      var = Variable(getNumber(token, lineNumber), false);
+    }
+    return var;
+  }
+
   const std::unique_ptr<BinaryOperator> parseAssignment(const std::string_view line, const int& length, int idx, const int& lineNumber) {
     while(line[idx] != DelimiterToken) {
       idx++;
@@ -165,14 +176,8 @@ namespace ParseLib {
       lhs += line[idx];
       idx++;
     }
-    Variable lhsVar;
+    Variable lhsVar {parseVariable(lhs, lineNumber)};
     Variable rhsVar;
-  
-    if (lhs.front() == RegisterToken) {
-      lhsVar = Variable(getRegisterNumber(lhs, lineNumber), true);
-    } else {
-      lhsVar = Variable(getNumber(lhs, lineNumber), false);
-    }
 
     if (idx == length) {
       return std::unique_ptr<AddOperator>(new AddOperator(lhsVar, rhsVar));
@@ -184,12 +189,7 @@ namespace ParseLib {
     for (int i = idx + 2; i < length; i++) {
       rhs += line[i];
     }
-
-    if (rhs.front() == RegisterToken) {
-      rhsVar = Variable(getRegisterNumber(rhs, lineNumber), true);
-    } else {
-      rhsVar = Variable(getNumber(rhs, lineNumber), false);
-    }
+    rhsVar = parseVariable(rhs, lineNumber); 
 
     if (op == AddOperator::keyword) {
       return std::unique_ptr<AddOperator>(new AddOperator(lhsVar, rhsVar)); 
@@ -197,6 +197,46 @@ namespace ParseLib {
       return std::unique_ptr<SubtractOperator>(new SubtractOperator(lhsVar, rhsVar)); 
     } else {
       throw ParseException("Operator is not recognised", lineNumber);
+    }
+  }
+
+  const std::vector<std::string> tokenise(const std::string_view line, const int& length, int idx) {
+    std::vector<std::string> tokens;
+    std::string curr {""};
+    while(idx < length) {
+      if (line[idx] == DelimiterToken) {
+        if (curr != "") {
+          tokens.push_back(curr);
+          curr = "";
+        }
+      } else {
+        curr += line[idx];
+      }
+      idx++;
+    }
+    if (curr != "") {
+      tokens.push_back(curr);
+    }
+    return tokens;
+  }
+
+  IfOperator* parseIf(const std::string_view line, const int& length, int idx, const int& lineNumber) {
+    std::vector<std::string> ls {tokenise(line, length, idx)};
+    Variable lhs {parseVariable(ls[0], lineNumber)};
+    Variable rhs {parseVariable(ls[2], lineNumber)};
+
+    if (ls[3] != GotoOperator::keyword) {
+      throw ParseException("Goto operator expected", lineNumber);
+    }
+
+    int returnLine {getNumber(ls[4], lineNumber)};
+    
+    if (ls[1] == LessThanOperator::keyword) {
+      return new IfOperator(returnLine, std::unique_ptr<LessThanOperator>(new LessThanOperator(lhs, rhs)));
+    } else if (ls[1] == EqualityOperator::keyword) {
+      return new IfOperator(returnLine, std::unique_ptr<EqualityOperator>(new EqualityOperator(lhs, rhs)));
+    } else {
+      throw ParseException("Comparison operator expected", lineNumber);
     }
   }
 }
@@ -216,7 +256,10 @@ Operator* Parser::parseLine(const std::string_view line, const int& length, cons
     // Expecting ' X'
     int number = ParseLib::parseNumberToEnd(line, length, idx, lineNumber);
     return new GotoOperator{number};
-  } 
+  } else if (token == IfOperator::keyword) {
+    // Expecting ' rX/X </== rX/X goto X'
+    return ParseLib::parseIf(line, length, idx, lineNumber);
+  }
 
   if (token.front() == RegisterToken) {
     // Expecting ' = X/rX + X/rX'

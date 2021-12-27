@@ -1,0 +1,8 @@
+mult(r1, r2)
+1. r3 = 0
+2. r4 = r2
+3. if r4 == 0 goto 7
+4. r4 = r4 - 1
+5. r3 = r3 + r1
+6. goto 3
+7. return r3

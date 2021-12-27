@@ -17,6 +17,8 @@ const int Executor::execute(const std::vector<Operator*> operators, Register& r)
       programCounter = op->exec(programCounter, r);
     } else if (currKeyword == GotoOperator::keyword) {
       programCounter = op->exec(programCounter, r) - 1;
+    } else if (currKeyword == IfOperator::keyword) {
+      programCounter = op->exec(programCounter, r);
     } else {
       throw RuntimeException("An unknown error occurred");
     }

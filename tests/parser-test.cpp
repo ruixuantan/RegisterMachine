@@ -1,8 +1,20 @@
 #include "gtest/gtest.h"
 #include "parser.hpp"
 #include "operators.hpp"
+#include "register.hpp"
 
+#include <vector>
 #include <string>
+
+TEST(ParserLib_test, tokenise) {
+  const std::string ifStatement {"if r1 < r2 goto 3"};
+  std::vector<std::string> ifExpected {"if", "r1", "<", "r2", "goto", "3"};
+  EXPECT_TRUE(ifExpected == ParseLib::tokenise(ifStatement, 17, 0));
+
+  const std::string assignment {"r1 = 3 + r5"};
+  std::vector<std::string> assignmentExpected {"r1", "=", "3", "+", "r5"};
+  EXPECT_TRUE(assignmentExpected == ParseLib::tokenise(assignment, 11, 0));
+}
 
 TEST(ParserLib_test, getLineLength) {
   int mockLineNumber { 0 };
@@ -91,4 +103,27 @@ TEST(ParserLib_test, parseAssignment) {
   EXPECT_TRUE (addOperator == addDoubleRegisterActual->getKeyword());
   EXPECT_TRUE (Variable(4, true) == addDoubleRegisterActual->getLhs());
   EXPECT_TRUE (Variable(11, true) == addDoubleRegisterActual->getRhs());
+}
+
+TEST(ParserLib_test, parseIf) {
+  int mockLineNumber{0};
+  Register r {};
+
+  r.setRegister(2, 1);
+  std::string lessThanStmt {"if r1 < 3 goto 10"};
+  IfOperator* lessThanExpected {ParseLib::parseIf(lessThanStmt, 17, 3, mockLineNumber)};
+  EXPECT_TRUE(IfOperator::keyword == lessThanExpected->getKeyword());
+  EXPECT_EQ(9, lessThanExpected->exec(0, r));
+
+  r.setRegister(10, 1);
+  EXPECT_EQ(1, lessThanExpected->exec(0, r));
+
+  r.setRegister(2, 1);
+  std::string equalStmt {"if r1 == 2 goto 10"};
+  IfOperator* equalExpected {ParseLib::parseIf(equalStmt, 18, 3, mockLineNumber)};
+  EXPECT_TRUE(IfOperator::keyword == equalExpected->getKeyword());
+  EXPECT_EQ(9, equalExpected->exec(0, r));
+
+  r.setRegister(10, 1);
+  EXPECT_EQ(1, equalExpected->exec(0, r));
 }

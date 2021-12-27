@@ -143,7 +143,7 @@ const std::string IfOperator::keyword { "if" };
 
 const int IfOperator::exec(int programCounter, Register& r) const {
   if (this->op->eval(r)) {
-    return this->lineNumber;
+    return this->lineNumber - 1;
   } else {
     return ++programCounter;
   }
