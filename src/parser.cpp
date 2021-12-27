@@ -5,18 +5,17 @@
 #include <vector>
 #include <string>
 #include <exception>
+#include <string_view>
 
-const char BeginBracketToken = '(';
-const char EndBracketToken = ')';
-const char RegisterDelimiter = ',';
-const char LineNumberToken = '.';
-const char RegisterToken = 'r';
-const char DelimiterToken = ' ';
-const char CommentToken = '#';
+constexpr char BeginBracketToken = '(';
+constexpr char EndBracketToken = ')';
+constexpr char RegisterDelimiter = ',';
+constexpr char LineNumberToken = '.';
+constexpr char RegisterToken = 'r';
+constexpr char DelimiterToken = ' ';
+constexpr char CommentToken = '#';
 
-const int EMPTY_LINE_NUMBER = -1;
-
-std::vector<int> Parser::parseInitialArgs(int argc, char **argv) {
+const std::vector<int> Parser::parseInitialArgs(int argc, char **argv) {
   std::vector<int> arguments{};
   for (int i = 2; i < argc; i++) {
     try {
@@ -37,7 +36,7 @@ namespace ParseLib {
    * @param lineNumber current line number being parsed
    * @return int 
    */
-  int getLineLength(std::string &line, int lineNumber) {
+  const int getLineLength(const std::string_view line, const int& lineNumber) {
     int length = line.size();
     int idx {length};
     for (int i = 0; i < length; i++) {
@@ -64,7 +63,7 @@ namespace ParseLib {
    * @param lineNumber current line number being parsed
    * @return int
    */
-  int getRegisterNumber(std::string &registerStr, int lineNumber) {
+  const int getRegisterNumber(const std::string& registerStr, const int& lineNumber) {
     try {
       return std::stoi(registerStr.substr(1, registerStr.size()));
     } catch (std::invalid_argument) {
@@ -79,7 +78,7 @@ namespace ParseLib {
    * @param lineNumber 
    * @return int 
    */
-  int getNumber(std::string &numberStr, int lineNumber) {
+  const int getNumber(const std::string& numberStr, const int& lineNumber) {
     try {
       return std::stoi(numberStr);
     } catch (std::invalid_argument) {
@@ -96,7 +95,7 @@ namespace ParseLib {
    * @param lineNumber current line number being parsed
    * @return int 
    */
-  int parseNumberToEnd(std::string &line, int length, int idx, int lineNumber) {
+  const int parseNumberToEnd(const std::string_view line, const int& length, int idx, const int& lineNumber) {
     std::string numberStr {""};
     for (int i = idx; i < length; i++) {
       numberStr += line[i];
@@ -112,7 +111,7 @@ namespace ParseLib {
    * @brief Increments idx to the index of the token right after '<line number>. '
    * Expects a '.' to terminate the line.
    */
-  int parseLineNumber(std::string &line, int length, int idx, int lineNumber) {
+  const int parseLineNumber(const std::string_view line, const int& length, int idx, const int& lineNumber) {
     for (int i = idx; i < length; i++) {
       if (line[i] == LineNumberToken) {
         i += 2;
@@ -131,7 +130,7 @@ namespace ParseLib {
    * @param lineNumber current line being parsed
    * @return std::string 
    */
-  std::string getToken(std::string &line, int length, int &idx, int lineNumber) {
+  const std::string getToken(const std::string_view line, const int& length, int &idx, const int& lineNumber) {
     std::string token{""};
     for (int i = idx; i < length; i++) {
       if (line[i] == DelimiterToken) {
@@ -147,7 +146,7 @@ namespace ParseLib {
    * @brief Gets the register number of a return operator. 
    * idx should be at the position of 'r'
    */
-  int parseReturn(std::string &line, int length, int idx, int lineNumber) {
+  const int parseReturn(const std::string_view line, const int& length, int idx, const int& lineNumber) {
     std::string reg { "" };
     for(int i = idx; i < length; i++) {
       reg += line[i];
@@ -155,7 +154,7 @@ namespace ParseLib {
     return getRegisterNumber(reg, lineNumber);
   }
 
-  std::unique_ptr<BinaryOperator> parseAssignment(std::string &line, int length, int idx, int lineNumber) {
+  const std::unique_ptr<BinaryOperator> parseAssignment(const std::string_view line, const int& length, int idx, const int& lineNumber) {
     while(line[idx] != DelimiterToken) {
       idx++;
     }
@@ -202,7 +201,7 @@ namespace ParseLib {
   }
 }
 
-Operator* Parser::parseLine(std::string &line, int length, int lineNumber) {
+Operator* Parser::parseLine(const std::string_view line, const int& length, const int& lineNumber) {
   int idx { 0 };
   idx = ParseLib::parseLineNumber(line, length, idx, lineNumber);
 
@@ -229,8 +228,8 @@ Operator* Parser::parseLine(std::string &line, int length, int lineNumber) {
   throw ParseException("No valid syntax detected", lineNumber);
 }
 
-std::vector<int> Parser::parseDeclarationLine(std::string &line) {
-  int length = line.size();
+const std::vector<int> Parser::parseDeclarationLine(std::string_view line) {
+  int length ( line.length() );
   std::vector<int> registerNumbers {};
  
   int startIdx {0};
@@ -269,7 +268,7 @@ std::vector<int> Parser::parseDeclarationLine(std::string &line) {
   return registerNumbers; 
 }
 
-std::vector<Operator*> Parser::parse(std::vector<std::string> lines) {
+const std::vector<Operator*> Parser::parse(const std::vector<std::string> lines) {
   std::vector<Operator*> operators {};
   for (int i = 1; i < lines.size(); i++) {
     int lineLength { ParseLib::getLineLength(lines[i], i) };
@@ -279,10 +278,10 @@ std::vector<Operator*> Parser::parse(std::vector<std::string> lines) {
   return operators;
 }
 
-ParseException::ParseException(std::string error, int lineNumber)
+ParseException::ParseException(std::string_view error, int lineNumber)
   : error{error}, lineNumber{lineNumber} {}
 
-int ParseException::getLineNumber() const {
+const int ParseException::getLineNumber() const {
   return this->lineNumber;
 }
 
@@ -290,7 +289,7 @@ const char* ParseException::what() const noexcept {
   return this->error.c_str();
 }
 
-ParseArgsException::ParseArgsException(std::string error)
+ParseArgsException::ParseArgsException(std::string_view error)
   : error{error} {}
 
 const char* ParseArgsException::what() const noexcept {

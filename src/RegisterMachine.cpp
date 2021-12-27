@@ -18,21 +18,14 @@ int main(int argc, char **argv) {
   Executor ex{};
 
   try {
-    std::vector<int> args { parser.parseInitialArgs(argc, argv) };
-    std::vector<std::string> lines { IOReader::readFile(filename) };
-    std::vector<int> initialRegisters { parser.parseDeclarationLine(lines[0])};
+    const std::vector<int> args { parser.parseInitialArgs(argc, argv) };
+    const std::vector<std::string> lines { IOReader::readFile(filename) };
+    const std::vector<int> initialRegisters { parser.parseDeclarationLine(lines[0])};
       
     reg.setRegisters(args, initialRegisters);
-
-    std::vector<Operator*> operators = parser.parse(lines);
-    
-    int returnRegister { ex.execute(operators, reg) };
-
-    if (returnRegister == TERMINATE_LINE_NUMBER) {
-      IOReader::printRuntimeError("Unknown error");
-    } else {
-      IOReader::printSuccess(reg.printRegister(returnRegister));
-    }
+    const std::vector<Operator*> operators { parser.parse(lines) };
+    const int returnRegister { ex.execute(operators, reg) };
+    IOReader::printSuccess(reg.printRegister(returnRegister));
 
   } catch (const ParseArgsException& e) {
     IOReader::printArgsError(e.what());
@@ -43,6 +36,5 @@ int main(int argc, char **argv) {
   } catch (const RegisterException& e) {
     IOReader::printRegisterError(e.what(), e.getRegNumber());
   }
-
   return 0;
 }

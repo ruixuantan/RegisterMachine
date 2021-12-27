@@ -6,17 +6,18 @@
 
 #include <exception>
 #include <vector>
+#include <string_view>
 
 class Executor {
   public:
-    int execute(std::vector<Operator*> operators, Register &r);
+    const int execute(const std::vector<Operator*> operators, Register& r);
 };
 
 class RuntimeException: public std::exception {
   private:
     std::string error;
   public:
-    RuntimeException(std::string error);
+    RuntimeException(std::string_view error);
     const char* what() const noexcept override;
 };
 
