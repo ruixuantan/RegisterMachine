@@ -50,26 +50,30 @@ class SubtractOperator: public BinaryOperator {
 class ComparisonOperator {
    protected:
     std::string keyword;
-    int lhsToken;
-    int rhsToken;
+    Variable lhs;
+    Variable rhs;
 
   public:
-    ComparisonOperator(std::string keyword, int lhsToken, int rhsToken);
-    std::string getKeyword() const;
+    ComparisonOperator(std::string keyword, Variable lhs, Variable rhs);
+    const std::string getKeyword() const;
+    virtual const bool eval(const Register& r) const = 0;
+    virtual ~ComparisonOperator();
 };
 
 class EqualityOperator: public ComparisonOperator {
   public:
-    EqualityOperator(int lhsToken, int rhsToken);
-    static std::string keyword;
-    bool eval() const; 
+    EqualityOperator(Variable lhs, Variable rhs);
+    const static std::string keyword;
+    const bool eval(const Register& r) const override;
+    virtual ~EqualityOperator();
 };
 
 class LessThanOperator: public ComparisonOperator {
   public:
-    LessThanOperator(int lhsToken, int rhsToken);
-    static std::string keyword;
-    bool eval() const; 
+    LessThanOperator(Variable lhs, Variable rhs);
+    const static std::string keyword;
+    const bool eval(const Register& r) const override;
+    virtual ~LessThanOperator();
 };
 
 class Operator {
@@ -112,6 +116,17 @@ class ReturnOperator: public Operator {
     const static std::string keyword;
     const int exec(int programCounter, Register& r) const override;
     virtual ~ReturnOperator();
+};
+
+class IfOperator: public Operator {
+  private:
+    int lineNumber;
+    std::unique_ptr<ComparisonOperator> op;
+  public:
+    IfOperator(int lineNumber, std::unique_ptr<ComparisonOperator> op);
+    const static std::string keyword;
+    const int exec(int programCounter, Register& r) const override;
+    virtual ~IfOperator();
 };
 
 #endif

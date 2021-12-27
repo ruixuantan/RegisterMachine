@@ -62,30 +62,36 @@ const int SubtractOperator::eval(const Register& r) const {
 
 SubtractOperator::~SubtractOperator() {};
 
-ComparisonOperator::ComparisonOperator(std::string keyword, int lhsToken, int rhsToken)
-  : keyword{keyword}, lhsToken{lhsToken}, rhsToken{rhsToken} {}
+ComparisonOperator::ComparisonOperator(std::string keyword, Variable lhs, Variable rhs)
+  : keyword{keyword}, lhs{lhs}, rhs{rhs} {}
 
-std::string ComparisonOperator::getKeyword() const {
+const std::string ComparisonOperator::getKeyword() const {
   return this->keyword;
 }
 
-std::string EqualityOperator::keyword { "==" };
+ComparisonOperator::~ComparisonOperator() {}
 
-EqualityOperator::EqualityOperator(int lhsToken, int rhsToken)
-  : ComparisonOperator{EqualityOperator::keyword, lhsToken, rhsToken} {};
+const std::string EqualityOperator::keyword { "==" };
 
-bool EqualityOperator::eval() const {
-  return this->lhsToken == this->rhsToken;
+EqualityOperator::EqualityOperator(Variable lhs, Variable rhs)
+  : ComparisonOperator{EqualityOperator::keyword, lhs, rhs} {};
+
+const bool EqualityOperator::eval(const Register& r) const {
+  return this->lhs.eval(r) == this->rhs.eval(r);
 }
 
-std::string LessThanOperator::keyword { "<" };
+EqualityOperator::~EqualityOperator() {}
 
-LessThanOperator::LessThanOperator(int lhsToken, int rhsToken)
-  : ComparisonOperator{LessThanOperator::keyword, lhsToken, rhsToken} {}
+const std::string LessThanOperator::keyword { "<" };
 
-bool LessThanOperator::eval() const {
-  return this->lhsToken < this->rhsToken;
+LessThanOperator::LessThanOperator(Variable lhs, Variable rhs)
+  : ComparisonOperator{LessThanOperator::keyword, lhs, rhs} {}
+
+const bool LessThanOperator::eval(const Register& r) const {
+  return this->lhs.eval(r) < this->rhs.eval(r);
 }
+
+LessThanOperator::~LessThanOperator() {}
 
 Operator::Operator(std::string keyword)
   : keyword{keyword} {}
@@ -129,3 +135,18 @@ const int ReturnOperator::exec(int programCounter, Register& r) const {
 }
 
 ReturnOperator::~ReturnOperator() {}
+
+IfOperator::IfOperator(int lineNumber, std::unique_ptr<ComparisonOperator> op)
+  : Operator{IfOperator::keyword}, lineNumber{lineNumber}, op{std::move(op)} {};
+ 
+const std::string IfOperator::keyword { "if" };
+
+const int IfOperator::exec(int programCounter, Register& r) const {
+  if (this->op->eval(r)) {
+    return this->lineNumber - 1;
+  } else {
+    return ++programCounter;
+  }
+}
+
+IfOperator::~IfOperator() {}
