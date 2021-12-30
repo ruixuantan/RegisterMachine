@@ -7,16 +7,15 @@
 
 namespace ParseLib {
   const int getLineLength(const std::string_view line, const int& lineNumber);
-  const int getRegisterNumber(const std::string& line, const int& lineNumber);
-  const int getNumber(const std::string& line, const int& lineNumber);
-  const int parseNumberToEnd(const std::string_view line, const int& length, int idx, const int& lineNumber);
-  const int parseLineNumber(const std::string_view line, const int& length, int idx, const int& lineNumber);
-  const std::string getToken(const std::string_view line, const int& length, int& idx, const int& lineNumber);
+  inline const int getRegisterNumber(const std::string& line, const int& lineNumber);
+  inline const int getNumber(const std::string& line, const int& lineNumber);
+  inline const int getLineNumber(const std::string& line, const int& lineNumber);
+  const std::vector<std::string> tokenise(const std::string_view line, const int& length);
   const Variable parseVariable(const std::string token, const int& lineNumber);
-  const int parseReturn(const std::string_view line, const int& length, int idx, const int& lineNumber);
-  const std::unique_ptr<BinaryOperator> parseAssignment(const std::string_view line, const int& length, int idx, const int& lineNumber);
-  const std::vector<std::string> tokenise(const std::string_view line, const int& length, int idx);
-  IfOperator* parseIf(const std::string_view line, const int& length, int idx, const int& lineNumber);
+  ReturnOperator* parseReturn(const std::vector<std::string> line, const int& lineNumber);
+  GotoOperator* parseGoto(const std::vector<std::string> line, const int& lineNumber);
+  AssignmentOperator* parseAssignment(const std::vector<std::string> tokens, const int& lineNumber);
+  IfOperator* parseIf(const std::vector<std::string> tokens, const int& lineNumber);
 }
 
 class Parser {
