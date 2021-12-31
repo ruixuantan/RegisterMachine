@@ -5,6 +5,7 @@
 #include <string>
 #include <exception>
 #include <string_view>
+#include <vector>
 
 constexpr int MAX_REG_SIZE { 100 };
 

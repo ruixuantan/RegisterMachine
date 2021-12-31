@@ -11,6 +11,7 @@
 class Executor {
   public:
     const int execute(const std::vector<Operator*> operators, Register& r);
+    void cleanup(const std::vector<Operator*> operators);
 };
 
 class RuntimeException: public std::exception {

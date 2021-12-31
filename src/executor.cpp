@@ -32,6 +32,13 @@ const int Executor::execute(const std::vector<Operator*> operators, Register& r)
   return returnRegister;
 }
 
+void Executor::cleanup(const std::vector<Operator*> operators) {
+  for (auto& op : operators) {
+    delete op;
+  }
+}
+
+
 RuntimeException::RuntimeException(std::string_view error)
   : error{error} {}
 

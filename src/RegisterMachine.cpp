@@ -27,6 +27,8 @@ int main(int argc, char **argv) {
     const int returnRegister { ex.execute(operators, reg) };
     IOReader::printSuccess(reg.printRegister(returnRegister));
 
+    ex.cleanup(operators);
+
   } catch (const ParseArgsException& e) {
     IOReader::printArgsError(e.what());
   } catch (const ParseException& e) {

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include <memory>
 
 Variable::Variable(int value, bool isRegister)
   : value{ value }, isRegister{ isRegister } {}
