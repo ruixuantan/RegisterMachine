@@ -6,7 +6,7 @@
 #include <string_view>
 
 namespace IOReader {
-  const std::vector<std::string> readFile(const std::string_view filename) {
+  const std::vector<std::string> readFile(const std::string& filename) {
     std::vector<std::string> vector {};
     std::fstream newfile;
 

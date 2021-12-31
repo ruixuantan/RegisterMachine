@@ -4,6 +4,7 @@
 #include "register.hpp"
 
 #include <string>
+#include <memory>
 
 class Variable {
   private:

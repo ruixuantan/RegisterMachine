@@ -3,9 +3,10 @@
 
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace IOReader {
-  const std::vector<std::string> readFile(const std::string_view filename);
+  const std::vector<std::string> readFile(const std::string& filename);
   void printSuccess(const std::string_view registerToPrint);
   void printArgsError(const std::string_view msg);
   void printCompilationError(const std::string_view msg, const int& lineNumber);

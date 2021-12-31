@@ -1,3 +1,6 @@
+#ifndef PARSER_H
+#define PARSER_H
+
 #include "operators.hpp"
 
 #include <string>
@@ -44,3 +47,5 @@ class ParseArgsException: public std::exception {
     ParseArgsException(std::string_view error);
     const char* what() const noexcept override;
 };
+
+#endif
