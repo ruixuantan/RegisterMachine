@@ -10,8 +10,7 @@
 
 class Executor {
   public:
-    const int execute(const std::vector<Operator*> operators, Register& r);
-    void cleanup(const std::vector<Operator*> operators);
+    const int execute(const std::vector<std::shared_ptr<Operator>> operators, Register& r);
 };
 
 class RuntimeException: public std::exception {

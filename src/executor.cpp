@@ -6,11 +6,11 @@
 #include <iostream>
 #include <string_view>
 
-const int Executor::execute(const std::vector<Operator*> operators, Register& r) {
+const int Executor::execute(const std::vector<std::shared_ptr<Operator>> operators, Register& r) {
   int programCounter {0};
 
   while(operators[programCounter]->getKeyword() != ReturnOperator::keyword) {
-    const Operator* op { operators[programCounter] };
+    const std::shared_ptr<Operator> op { operators[programCounter] };
     std::string currKeyword { op->getKeyword() };
   
     if (currKeyword == AssignmentOperator::keyword) {
@@ -31,13 +31,6 @@ const int Executor::execute(const std::vector<Operator*> operators, Register& r)
   int returnRegister { operators[programCounter]->exec(programCounter, r) };
   return returnRegister;
 }
-
-void Executor::cleanup(const std::vector<Operator*> operators) {
-  for (auto& op : operators) {
-    delete op;
-  }
-}
-
 
 RuntimeException::RuntimeException(std::string_view error)
   : error{error} {}

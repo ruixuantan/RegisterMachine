@@ -23,11 +23,9 @@ int main(int argc, char **argv) {
     const std::vector<int> initialRegisters { parser.parseDeclarationLine(lines[0])};
       
     reg.setRegisters(args, initialRegisters);
-    const std::vector<Operator*> operators { parser.parse(lines) };
+    const std::vector<std::shared_ptr<Operator>> operators { parser.parse(lines) };
     const int returnRegister { ex.execute(operators, reg) };
     IOReader::printSuccess(reg.printRegister(returnRegister));
-
-    ex.cleanup(operators);
 
   } catch (const ParseArgsException& e) {
     IOReader::printArgsError(e.what());
