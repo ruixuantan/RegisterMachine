@@ -27,15 +27,15 @@ void Register::setRegisters(const std::vector<int>& values, const std::vector<in
   }
 }
 
-const int Register::getRegister(const int& regNumber) const {
+int Register::getRegister(const int& regNumber) const {
   return this->reg[regNumber - 1];
 }
 
-const std::string Register::printRegister(const int& regNumber) const {
+std::string Register::printRegister(const int& regNumber) const {
   return "r" + std::to_string(regNumber) + ": " + std::to_string(this->reg[regNumber - 1]);
 }
 
-const std::string Register::printRegisters(const int& start, const int& end) const {
+std::string Register::printRegisters(const int& start, const int& end) const {
   std::string registerString;
   for (int i = start - 1; i < end; i++) {
     registerString += "r" + std::to_string(i + 1) + ": " + std::to_string(this->reg[i]) +"\n";
@@ -46,7 +46,7 @@ const std::string Register::printRegisters(const int& start, const int& end) con
 RegisterException::RegisterException(int regNumber, std::string_view error)
   : regNumber{regNumber}, error{error} {}
 
-const int RegisterException::getRegNumber() const {
+int RegisterException::getRegNumber() const {
   return this->regNumber;
 }
 

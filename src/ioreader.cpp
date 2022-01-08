@@ -5,11 +5,9 @@
 #include <string_view>
 
 namespace IOReader {
-  const std::vector<std::string> readFile(const std::string& filename) {
+  std::vector<std::string> readFile(const std::string& filename) {
     std::vector<std::string> vector {};
-    std::fstream newfile;
-
-    newfile.open(filename, std::ios::in);
+    std::fstream newfile (filename, std::ios::in);
     if (newfile.is_open()) {
       std::string line;
       while (getline(newfile, line)) {

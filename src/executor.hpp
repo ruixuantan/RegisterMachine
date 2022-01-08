@@ -10,14 +10,14 @@
 
 class Executor {
   public:
-    const int execute(const std::vector<std::shared_ptr<Operator>>& operators, Register& r);
+    int execute(const std::vector<std::shared_ptr<Operator>>& operators, Register& r);
 };
 
 class RuntimeException: public std::exception {
   private:
     std::string error;
   public:
-    RuntimeException(std::string_view error);
+    explicit RuntimeException(std::string_view error);
     const char* what() const noexcept override;
 };
 

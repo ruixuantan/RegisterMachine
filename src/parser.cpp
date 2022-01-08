@@ -6,7 +6,6 @@
 #include <string>
 #include <exception>
 #include <string_view>
-#include <memory>
 
 constexpr char BeginBracketToken = '(';
 constexpr char EndBracketToken = ')';
@@ -16,7 +15,7 @@ constexpr char RegisterToken = 'r';
 constexpr char DelimiterToken = ' ';
 constexpr char CommentToken = '#';
 
-const std::vector<int> Parser::parseInitialArgs(int argc, char **argv) {
+std::vector<int> Parser::parseInitialArgs(int argc, char **argv) {
   std::vector<int> arguments{};
   for (int i = 2; i < argc; i++) {
     try {
@@ -37,7 +36,7 @@ namespace ParseLib {
    * @param lineNumber current line number being parsed
    * @return int 
    */
-  const int getLineLength(const std::string_view line, const int& lineNumber) {
+  int getLineLength(const std::string_view line, const int& lineNumber) {
     int length = line.size();
     int idx {length};
     for (int i = 0; i < length; i++) {
@@ -64,7 +63,7 @@ namespace ParseLib {
    * @param lineNumber current line number being parsed
    * @return int
    */
-  inline const int getRegisterNumber(const std::string& registerStr, const int& lineNumber) {
+  int getRegisterNumber(const std::string& registerStr, const int& lineNumber) {
     try {
       return std::stoi(registerStr.substr(1, registerStr.size()));
     } catch (std::invalid_argument) {
@@ -79,7 +78,7 @@ namespace ParseLib {
    * @param lineNumber 
    * @return int 
    */
-  inline const int getNumber(const std::string& numberStr, const int& lineNumber) {
+  int getNumber(const std::string& numberStr, const int& lineNumber) {
     try {
       return std::stoi(numberStr);
     } catch (std::invalid_argument) {
@@ -87,17 +86,7 @@ namespace ParseLib {
     }
   }
 
-  /**
-   * Expects a '.' to terminate the line.
-   */
-  inline const int getLineNumber(const std::string& line, const int& lineNumber) {
-    if (line.back() != LineNumberToken) {
-      throw ParseException("Line number did not terminate with '.'", lineNumber);
-    }
-    return getNumber(line.substr(0, line.size() - 1), lineNumber);
-  }
-
-  const std::vector<std::string> tokenise(const std::string_view line, const int& length) {
+  std::vector<std::string> tokenise(const std::string_view line, const int& length) {
     int idx{0};
     std::vector<std::string> tokens;
     std::string curr;
@@ -128,7 +117,7 @@ namespace ParseLib {
     return std::shared_ptr<GotoOperator> { new GotoOperator{getNumber(line[2], lineNumber)} };
   }
 
-  const Variable parseVariable(const std::string& token, const int& lineNumber) {
+  Variable parseVariable(const std::string& token, const int& lineNumber) {
     Variable var{};
     if (token.front() == RegisterToken) {
       var = Variable(getRegisterNumber(token, lineNumber), true);
@@ -191,7 +180,6 @@ namespace ParseLib {
 std::shared_ptr<Operator> Parser::parseLine(const std::string_view line, const int& length, const int& lineNumber) {
   std::vector<std::string> tokens {ParseLib::tokenise(line, length)};
 
-  int currentLineNumber { ParseLib::getLineNumber(tokens[0], lineNumber) };
   // Start token could be 'return' / 'rX' / 'goto' / 'if'
   std::string startToken { tokens[1] };
 
@@ -210,7 +198,7 @@ std::shared_ptr<Operator> Parser::parseLine(const std::string_view line, const i
   throw ParseException("No valid syntax detected", lineNumber);
 }
 
-const std::vector<int> Parser::parseDeclarationLine(std::string_view line) {
+std::vector<int> Parser::parseDeclarationLine(std::string_view line) {
   int length ( line.length() );
   std::vector<int> registerNumbers {};
  
@@ -250,7 +238,7 @@ const std::vector<int> Parser::parseDeclarationLine(std::string_view line) {
   return registerNumbers; 
 }
 
-const std::vector<std::shared_ptr<Operator>> Parser::parse(const std::vector<std::string>& lines) {
+std::vector<std::shared_ptr<Operator>> Parser::parse(const std::vector<std::string>& lines) {
   std::vector<std::shared_ptr<Operator>> operators {};
   for (int i = 1; i < lines.size(); i++) {
     int lineLength { ParseLib::getLineLength(lines[i], i) };
@@ -263,7 +251,7 @@ const std::vector<std::shared_ptr<Operator>> Parser::parse(const std::vector<std
 ParseException::ParseException(std::string_view error, int lineNumber)
   : error{error}, lineNumber{lineNumber} {}
 
-const int ParseException::getLineNumber() const {
+int ParseException::getLineNumber() const {
   return this->lineNumber;
 }
 

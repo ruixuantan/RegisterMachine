@@ -5,7 +5,7 @@
 #include <vector>
 #include <string_view>
 
-const int Executor::execute(const std::vector<std::shared_ptr<Operator>>& operators, Register& r) {
+int Executor::execute(const std::vector<std::shared_ptr<Operator>>& operators, Register& r) {
   int programCounter {0};
 
   while(operators[programCounter]->getKeyword() != ReturnOperator::keyword) {
