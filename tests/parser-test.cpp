@@ -57,7 +57,9 @@ TEST(ParserLib_test, parseAssignment) {
   Register r {};
 
   std::vector<std::string> addDoubleValueStmt {"2.", "r1", "=", "3", "+", "4"};
-  AssignmentOperator* addDoubleValue {ParseLib::parseAssignment(addDoubleValueStmt, mockLineNumber)};
+  std::shared_ptr<AssignmentOperator> addDoubleValue {
+    ParseLib::parseAssignment(addDoubleValueStmt, mockLineNumber)
+  };
   EXPECT_TRUE (2 == addDoubleValue->exec(1, r));
   EXPECT_EQ (r.getRegister(1), 7);
 
@@ -83,7 +85,9 @@ TEST(ParserLib_test, parseIf) {
 
   r.setRegister(2, 1);
   std::vector<std::string>  lessThanStmt {"5.", "if", "r1", "<", "3", "goto", "10"};
-  IfOperator* lessThanExpected {ParseLib::parseIf(lessThanStmt, mockLineNumber)};
+  std::shared_ptr<IfOperator> lessThanExpected {
+    ParseLib::parseIf(lessThanStmt, mockLineNumber)
+  };
   EXPECT_TRUE(IfOperator::keyword == lessThanExpected->getKeyword());
   EXPECT_EQ(9, lessThanExpected->exec(0, r));
 
@@ -92,7 +96,9 @@ TEST(ParserLib_test, parseIf) {
 
   r.setRegister(2, 1);
   std::vector<std::string>  equalStmt {"5.", "if", "r1", "==", "2", "goto", "10"};
-  IfOperator* equalExpected {ParseLib::parseIf(equalStmt, mockLineNumber)};
+  std::shared_ptr<IfOperator> equalExpected {
+    ParseLib::parseIf(equalStmt, mockLineNumber)
+  };
   EXPECT_TRUE(IfOperator::keyword == equalExpected->getKeyword());
   EXPECT_EQ(9, equalExpected->exec(0, r));
 

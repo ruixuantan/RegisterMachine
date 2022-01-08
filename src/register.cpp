@@ -1,5 +1,4 @@
 #include "register.hpp"
-#include "operators.hpp"
 
 #include <array>
 #include <string>
@@ -19,7 +18,7 @@ void Register::setRegister(const int& value, const int& regNumber) {
   this->reg[regNumber - 1] = value;
 }
 
-void Register::setRegisters(const std::vector<int> values, const std::vector<int> regNumbers) {
+void Register::setRegisters(const std::vector<int>& values, const std::vector<int>& regNumbers) {
   for (int i = 0; i < values.size(); i++) {
     if (values[i] < 0) {
       throw RegisterException(regNumbers[i], "Values must be less than 0"); 
@@ -28,16 +27,16 @@ void Register::setRegisters(const std::vector<int> values, const std::vector<int
   }
 }
 
-const int Register::getRegister(const int& regNumber) const {
+int Register::getRegister(const int& regNumber) const {
   return this->reg[regNumber - 1];
 }
 
-const std::string Register::printRegister(const int& regNumber) const {
+std::string Register::printRegister(const int& regNumber) const {
   return "r" + std::to_string(regNumber) + ": " + std::to_string(this->reg[regNumber - 1]);
 }
 
-const std::string Register::printRegisters(const int& start, const int& end) const {
-  std::string registerString = "";
+std::string Register::printRegisters(const int& start, const int& end) const {
+  std::string registerString;
   for (int i = start - 1; i < end; i++) {
     registerString += "r" + std::to_string(i + 1) + ": " + std::to_string(this->reg[i]) +"\n";
   }
@@ -47,7 +46,7 @@ const std::string Register::printRegisters(const int& start, const int& end) con
 RegisterException::RegisterException(int regNumber, std::string_view error)
   : regNumber{regNumber}, error{error} {}
 
-const int RegisterException::getRegNumber() const {
+int RegisterException::getRegNumber() const {
   return this->regNumber;
 }
 

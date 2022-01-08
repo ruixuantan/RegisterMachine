@@ -2,13 +2,13 @@
 #include "register.hpp"
 
 #include <string>
-#include <iostream>
 #include <memory>
+#include <utility>
 
 Variable::Variable(int value, bool isRegister)
   : value{ value }, isRegister{ isRegister } {}
 
-const int Variable::eval(const Register& r) const {
+int Variable::eval(const Register& r) const {
   if (this->isRegister) {
     return r.getRegister(this->value); 
   } else {
@@ -21,17 +21,17 @@ bool operator== (const Variable& v1, const Variable& v2) {
 }
 
 BinaryOperator::BinaryOperator(std::string keyword, Variable lhs, Variable rhs)
-  : keyword{keyword}, lhs{lhs}, rhs{rhs} {}
+  : keyword{std::move(keyword)}, lhs{lhs}, rhs{rhs} {}
 
-const std::string BinaryOperator::getKeyword() const {
+std::string BinaryOperator::getKeyword() const {
   return this->keyword;
 }
 
-const Variable BinaryOperator::getLhs() const {
+Variable BinaryOperator::getLhs() const {
   return this->lhs;
 }
 
-const Variable BinaryOperator::getRhs() const {
+Variable BinaryOperator::getRhs() const {
   return this->rhs;
 }
 
@@ -39,88 +39,88 @@ bool operator== (const BinaryOperator& o1, const BinaryOperator& o2) {
   return o1.keyword == o2.keyword && o1.lhs == o2.lhs && o1.rhs == o2.rhs;
 }
 
-BinaryOperator::~BinaryOperator() {};
+BinaryOperator::~BinaryOperator() = default;;
 
 const std::string AddOperator::keyword { "+" };
 
 AddOperator::AddOperator(Variable lhs, Variable rhs)
   : BinaryOperator{AddOperator::keyword, lhs, rhs} {};
 
-const int AddOperator::eval(const Register& r) const {
+int AddOperator::eval(const Register& r) const {
   return this->lhs.eval(r) + this->rhs.eval(r);
 }
 
-AddOperator::~AddOperator() {};
+AddOperator::~AddOperator() = default;;
 
 const std::string SubtractOperator::keyword { "-" };
 
 SubtractOperator::SubtractOperator(Variable lhs, Variable rhs)
   : BinaryOperator{SubtractOperator::keyword, lhs, rhs} {};
 
-const int SubtractOperator::eval(const Register& r) const {
+int SubtractOperator::eval(const Register& r) const {
   return this->lhs.eval(r) - this->rhs.eval(r);
 }
 
-SubtractOperator::~SubtractOperator() {};
+SubtractOperator::~SubtractOperator() = default;;
 
 ComparisonOperator::ComparisonOperator(std::string keyword, Variable lhs, Variable rhs)
   : keyword{keyword}, lhs{lhs}, rhs{rhs} {}
 
-const std::string ComparisonOperator::getKeyword() const {
+std::string ComparisonOperator::getKeyword() const {
   return this->keyword;
 }
 
-ComparisonOperator::~ComparisonOperator() {}
+ComparisonOperator::~ComparisonOperator() = default;
 
 const std::string EqualityOperator::keyword { "==" };
 
 EqualityOperator::EqualityOperator(Variable lhs, Variable rhs)
   : ComparisonOperator{EqualityOperator::keyword, lhs, rhs} {};
 
-const bool EqualityOperator::eval(const Register& r) const {
+bool EqualityOperator::eval(const Register& r) const {
   return this->lhs.eval(r) == this->rhs.eval(r);
 }
 
-EqualityOperator::~EqualityOperator() {}
+EqualityOperator::~EqualityOperator() = default;
 
 const std::string LessThanOperator::keyword { "<" };
 
 LessThanOperator::LessThanOperator(Variable lhs, Variable rhs)
   : ComparisonOperator{LessThanOperator::keyword, lhs, rhs} {}
 
-const bool LessThanOperator::eval(const Register& r) const {
+bool LessThanOperator::eval(const Register& r) const {
   return this->lhs.eval(r) < this->rhs.eval(r);
 }
 
-LessThanOperator::~LessThanOperator() {}
+LessThanOperator::~LessThanOperator() = default;
 
 Operator::Operator(std::string keyword)
-  : keyword{keyword} {}
+  : keyword{std::move(keyword)} {}
 
-const std::string Operator::getKeyword() const {
+std::string Operator::getKeyword() const {
   return this->keyword;
 }
 
-Operator::~Operator() {}
+Operator::~Operator() = default;
 
 const std::string AssignmentOperator::keyword = "=";
 
 AssignmentOperator::AssignmentOperator(int regNumber, std::unique_ptr<BinaryOperator> op)
   : Operator{AssignmentOperator::keyword}, regNumber{regNumber}, op{std::move(op)} {};
 
-const int AssignmentOperator::exec(int programCounter, Register& r) const {
+int AssignmentOperator::exec(int programCounter, Register& r) const {
   r.setRegister(op->eval(r), this->regNumber);
   return ++programCounter;
 }
 
-AssignmentOperator::~AssignmentOperator() {}
+AssignmentOperator::~AssignmentOperator() = default;
 
 const std::string GotoOperator::keyword { "goto" };
 
 GotoOperator::GotoOperator(int lineNumber)
   : Operator{GotoOperator::keyword}, lineNumber{lineNumber} {};
 
-const int GotoOperator::exec(int programCounter, Register& r) const {
+int GotoOperator::exec(int programCounter, Register& r) const {
   return this->lineNumber;
 }
 
@@ -131,18 +131,18 @@ const std::string ReturnOperator::keyword { "return" };
 ReturnOperator::ReturnOperator(int returnRegNumber)
   : Operator{ReturnOperator::keyword}, returnRegNumber{returnRegNumber} {}
 
-const int ReturnOperator::exec(int programCounter, Register& r) const {
+int ReturnOperator::exec(int programCounter, Register& r) const {
   return this->returnRegNumber;
 }
 
-ReturnOperator::~ReturnOperator() {}
+ReturnOperator::~ReturnOperator() = default;
 
 IfOperator::IfOperator(int lineNumber, std::unique_ptr<ComparisonOperator> op)
   : Operator{IfOperator::keyword}, lineNumber{lineNumber}, op{std::move(op)} {};
  
 const std::string IfOperator::keyword { "if" };
 
-const int IfOperator::exec(int programCounter, Register& r) const {
+int IfOperator::exec(int programCounter, Register& r) const {
   if (this->op->eval(r)) {
     return this->lineNumber - 1;
   } else {
@@ -150,4 +150,4 @@ const int IfOperator::exec(int programCounter, Register& r) const {
   }
 }
 
-IfOperator::~IfOperator() {}
+IfOperator::~IfOperator() = default;

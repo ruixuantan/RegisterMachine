@@ -1,12 +1,11 @@
 #include "parser.hpp"
 #include "operators.hpp"
 
-#include <iostream>
+#include <memory>
 #include <vector>
 #include <string>
 #include <exception>
 #include <string_view>
-#include <memory>
 
 constexpr char BeginBracketToken = '(';
 constexpr char EndBracketToken = ')';
@@ -16,7 +15,7 @@ constexpr char RegisterToken = 'r';
 constexpr char DelimiterToken = ' ';
 constexpr char CommentToken = '#';
 
-const std::vector<int> Parser::parseInitialArgs(int argc, char **argv) {
+std::vector<int> Parser::parseInitialArgs(int argc, char **argv) {
   std::vector<int> arguments{};
   for (int i = 2; i < argc; i++) {
     try {
@@ -37,7 +36,7 @@ namespace ParseLib {
    * @param lineNumber current line number being parsed
    * @return int 
    */
-  const int getLineLength(const std::string_view line, const int& lineNumber) {
+  int getLineLength(const std::string_view line, const int& lineNumber) {
     int length = line.size();
     int idx {length};
     for (int i = 0; i < length; i++) {
@@ -64,7 +63,7 @@ namespace ParseLib {
    * @param lineNumber current line number being parsed
    * @return int
    */
-  inline const int getRegisterNumber(const std::string& registerStr, const int& lineNumber) {
+  int getRegisterNumber(const std::string& registerStr, const int& lineNumber) {
     try {
       return std::stoi(registerStr.substr(1, registerStr.size()));
     } catch (std::invalid_argument) {
@@ -79,7 +78,7 @@ namespace ParseLib {
    * @param lineNumber 
    * @return int 
    */
-  inline const int getNumber(const std::string& numberStr, const int& lineNumber) {
+  int getNumber(const std::string& numberStr, const int& lineNumber) {
     try {
       return std::stoi(numberStr);
     } catch (std::invalid_argument) {
@@ -87,23 +86,13 @@ namespace ParseLib {
     }
   }
 
-  /**
-   * Expects a '.' to terminate the line.
-   */
-  inline const int getLineNumber(const std::string& line, const int& lineNumber) {
-    if (line.back() != LineNumberToken) {
-      throw ParseException("Line number did not terminate with '.'", lineNumber);
-    }
-    return getNumber(line.substr(0, line.size() - 1), lineNumber);
-  }
-
-  const std::vector<std::string> tokenise(const std::string_view line, const int& length) {
+  std::vector<std::string> tokenise(const std::string_view line, const int& length) {
     int idx{0};
     std::vector<std::string> tokens;
-    std::string curr {""};
+    std::string curr;
     while(idx < length) {
       if (line[idx] == DelimiterToken) {
-        if (curr != "") {
+        if (!curr.empty()) {
           tokens.push_back(curr);
           curr = "";
         }
@@ -112,23 +101,23 @@ namespace ParseLib {
       }
       idx++;
     }
-    if (curr != "") {
+    if (!curr.empty()) {
       tokens.push_back(curr);
     }
     return tokens;
   }
 
   // Handle [X., return, rX]
-  ReturnOperator* parseReturn(const std::vector<std::string> line, const int& lineNumber) {
-    return new ReturnOperator{getRegisterNumber(line[2], lineNumber)};
+  std::shared_ptr<ReturnOperator> parseReturn(const std::vector<std::string>& line, const int& lineNumber) {
+    return std::shared_ptr<ReturnOperator> { new ReturnOperator{getRegisterNumber(line[2], lineNumber)} };
   }
   
   // Handle [X., goto, X]
-  GotoOperator* parseGoto(const std::vector<std::string> line, const int& lineNumber) {
-    return new GotoOperator{getNumber(line[2], lineNumber)};
+  std::shared_ptr<GotoOperator> parseGoto(const std::vector<std::string>& line, const int& lineNumber) {
+    return std::shared_ptr<GotoOperator> { new GotoOperator{getNumber(line[2], lineNumber)} };
   }
 
-  const Variable parseVariable(const std::string token, const int& lineNumber) {
+  Variable parseVariable(const std::string& token, const int& lineNumber) {
     Variable var{};
     if (token.front() == RegisterToken) {
       var = Variable(getRegisterNumber(token, lineNumber), true);
@@ -139,26 +128,32 @@ namespace ParseLib {
   }
   
   // Expecting [X., rX, =, X/rX, +, X/rX] OR [X., rX, =, X]
-  AssignmentOperator* parseAssignment(const std::vector<std::string> tokens, const int& lineNumber) {
+  std::shared_ptr<AssignmentOperator> parseAssignment(const std::vector<std::string>& tokens, const int& lineNumber) {
     const int regNumber {getRegisterNumber(tokens[1], lineNumber)};
     Variable lhsVar {parseVariable(tokens[3], lineNumber)};
 
     if (tokens.size() <= 4) {
-      return new AssignmentOperator(regNumber, std::unique_ptr<AddOperator>(new AddOperator(lhsVar, Variable{})));
+      return std::shared_ptr<AssignmentOperator> { 
+        new AssignmentOperator(regNumber, std::make_unique<AddOperator>(lhsVar, Variable{}))
+      };
     }
 
     Variable rhsVar {parseVariable(tokens[5], lineNumber)};
     if (tokens[4] == AddOperator::keyword) {
-      return new AssignmentOperator(regNumber, std::unique_ptr<AddOperator>(new AddOperator(lhsVar, rhsVar)));
+      return std::shared_ptr<AssignmentOperator> {
+        new AssignmentOperator(regNumber, std::make_unique<AddOperator>(lhsVar, rhsVar))
+      };
     } else if (tokens[4] == SubtractOperator::keyword) {
-      return new AssignmentOperator(regNumber, std::unique_ptr<SubtractOperator>(new SubtractOperator(lhsVar, rhsVar)));
+      return std::shared_ptr<AssignmentOperator> {
+        new AssignmentOperator(regNumber, std::make_unique<SubtractOperator>(lhsVar, rhsVar))
+      };
     } else {
       throw ParseException("Operator is not recognised", lineNumber);
     } 
   }
 
   // Handle [X. if, rX/X, </==, rX/X, goto, X]
-  IfOperator* parseIf(const std::vector<std::string> tokens, const int& lineNumber) {
+  std::shared_ptr<IfOperator> parseIf(const std::vector<std::string>& tokens, const int& lineNumber) {
     Variable lhs {parseVariable(tokens[2], lineNumber)};
     Variable rhs {parseVariable(tokens[4], lineNumber)};
 
@@ -169,19 +164,22 @@ namespace ParseLib {
     int returnLine {getNumber(tokens[6], lineNumber)};
     
     if (tokens[3] == LessThanOperator::keyword) {
-      return new IfOperator(returnLine, std::unique_ptr<LessThanOperator>(new LessThanOperator(lhs, rhs)));
+      return std::shared_ptr<IfOperator> {
+        new IfOperator(returnLine, std::make_unique<LessThanOperator>(lhs, rhs))
+      };
     } else if (tokens[3] == EqualityOperator::keyword) {
-      return new IfOperator(returnLine, std::unique_ptr<EqualityOperator>(new EqualityOperator(lhs, rhs)));
+      return std::shared_ptr<IfOperator> {
+        new IfOperator(returnLine, std::make_unique<EqualityOperator>(lhs, rhs))
+      };
     } else {
       throw ParseException("Comparison operator expected", lineNumber);
     }
   }
 }
 
-Operator* Parser::parseLine(const std::string_view line, const int& length, const int& lineNumber) {
+std::shared_ptr<Operator> Parser::parseLine(const std::string_view line, const int& length, const int& lineNumber) {
   std::vector<std::string> tokens {ParseLib::tokenise(line, length)};
 
-  int currentLineNumber { ParseLib::getLineNumber(tokens[0], lineNumber) };
   // Start token could be 'return' / 'rX' / 'goto' / 'if'
   std::string startToken { tokens[1] };
 
@@ -200,7 +198,7 @@ Operator* Parser::parseLine(const std::string_view line, const int& length, cons
   throw ParseException("No valid syntax detected", lineNumber);
 }
 
-const std::vector<int> Parser::parseDeclarationLine(std::string_view line) {
+std::vector<int> Parser::parseDeclarationLine(std::string_view line) {
   int length ( line.length() );
   std::vector<int> registerNumbers {};
  
@@ -227,7 +225,7 @@ const std::vector<int> Parser::parseDeclarationLine(std::string_view line) {
 
   while(idx < endIdx) {
     if (line[idx] == RegisterToken) {
-      std::string registerNumberStr { "" };
+      std::string registerNumberStr;
       while(line[idx] != RegisterDelimiter && line[idx] != EndBracketToken) {
         registerNumberStr += line[idx];
         idx++;
@@ -240,11 +238,11 @@ const std::vector<int> Parser::parseDeclarationLine(std::string_view line) {
   return registerNumbers; 
 }
 
-const std::vector<Operator*> Parser::parse(const std::vector<std::string> lines) {
-  std::vector<Operator*> operators {};
+std::vector<std::shared_ptr<Operator>> Parser::parse(const std::vector<std::string>& lines) {
+  std::vector<std::shared_ptr<Operator>> operators {};
   for (int i = 1; i < lines.size(); i++) {
     int lineLength { ParseLib::getLineLength(lines[i], i) };
-    Operator *o { parseLine(lines[i], lineLength, i) };
+    std::shared_ptr<Operator> o { parseLine(lines[i], lineLength, i) };
     operators.push_back(o);
   }
   return operators;
@@ -253,7 +251,7 @@ const std::vector<Operator*> Parser::parse(const std::vector<std::string> lines)
 ParseException::ParseException(std::string_view error, int lineNumber)
   : error{error}, lineNumber{lineNumber} {}
 
-const int ParseException::getLineNumber() const {
+int ParseException::getLineNumber() const {
   return this->lineNumber;
 }
 
