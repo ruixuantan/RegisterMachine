@@ -3,10 +3,9 @@
 #include "register.hpp"
 
 #include <vector>
-#include <iostream>
 #include <string_view>
 
-const int Executor::execute(const std::vector<std::shared_ptr<Operator>> operators, Register& r) {
+const int Executor::execute(const std::vector<std::shared_ptr<Operator>>& operators, Register& r) {
   int programCounter {0};
 
   while(operators[programCounter]->getKeyword() != ReturnOperator::keyword) {

@@ -11,11 +11,11 @@ constexpr int MAX_REG_SIZE { 100 };
 
 class Register {
   private:
-    std::array<int, MAX_REG_SIZE> reg;
+    std::array<int, MAX_REG_SIZE> reg{};
   public:
     Register();
     void setRegister(const int& value, const int& regNumber);
-    void setRegisters(const std::vector<int> values, const std::vector<int> regNumbers);
+    void setRegisters(const std::vector<int>& values, const std::vector<int>& regNumbers);
     const int getRegister(const int& regNumber) const;
 
     const std::string printRegister(const int& regNumber) const;

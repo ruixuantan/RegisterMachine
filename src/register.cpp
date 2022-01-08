@@ -1,5 +1,4 @@
 #include "register.hpp"
-#include "operators.hpp"
 
 #include <array>
 #include <string>
@@ -19,7 +18,7 @@ void Register::setRegister(const int& value, const int& regNumber) {
   this->reg[regNumber - 1] = value;
 }
 
-void Register::setRegisters(const std::vector<int> values, const std::vector<int> regNumbers) {
+void Register::setRegisters(const std::vector<int>& values, const std::vector<int>& regNumbers) {
   for (int i = 0; i < values.size(); i++) {
     if (values[i] < 0) {
       throw RegisterException(regNumbers[i], "Values must be less than 0"); 
@@ -37,7 +36,7 @@ const std::string Register::printRegister(const int& regNumber) const {
 }
 
 const std::string Register::printRegisters(const int& start, const int& end) const {
-  std::string registerString = "";
+  std::string registerString;
   for (int i = start - 1; i < end; i++) {
     registerString += "r" + std::to_string(i + 1) + ": " + std::to_string(this->reg[i]) +"\n";
   }

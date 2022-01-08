@@ -2,7 +2,6 @@
 #include "register.hpp"
 
 #include <string>
-#include <iostream>
 #include <memory>
 
 Variable::Variable(int value, bool isRegister)

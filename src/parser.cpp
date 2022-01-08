@@ -1,7 +1,7 @@
 #include "parser.hpp"
 #include "operators.hpp"
 
-#include <iostream>
+#include <memory>
 #include <vector>
 #include <string>
 #include <exception>
@@ -100,10 +100,10 @@ namespace ParseLib {
   const std::vector<std::string> tokenise(const std::string_view line, const int& length) {
     int idx{0};
     std::vector<std::string> tokens;
-    std::string curr {""};
+    std::string curr;
     while(idx < length) {
       if (line[idx] == DelimiterToken) {
-        if (curr != "") {
+        if (!curr.empty()) {
           tokens.push_back(curr);
           curr = "";
         }
@@ -112,23 +112,23 @@ namespace ParseLib {
       }
       idx++;
     }
-    if (curr != "") {
+    if (!curr.empty()) {
       tokens.push_back(curr);
     }
     return tokens;
   }
 
   // Handle [X., return, rX]
-  std::shared_ptr<ReturnOperator> parseReturn(const std::vector<std::string> line, const int& lineNumber) {
+  std::shared_ptr<ReturnOperator> parseReturn(const std::vector<std::string>& line, const int& lineNumber) {
     return std::shared_ptr<ReturnOperator> { new ReturnOperator{getRegisterNumber(line[2], lineNumber)} };
   }
   
   // Handle [X., goto, X]
-  std::shared_ptr<GotoOperator> parseGoto(const std::vector<std::string> line, const int& lineNumber) {
+  std::shared_ptr<GotoOperator> parseGoto(const std::vector<std::string>& line, const int& lineNumber) {
     return std::shared_ptr<GotoOperator> { new GotoOperator{getNumber(line[2], lineNumber)} };
   }
 
-  const Variable parseVariable(const std::string token, const int& lineNumber) {
+  const Variable parseVariable(const std::string& token, const int& lineNumber) {
     Variable var{};
     if (token.front() == RegisterToken) {
       var = Variable(getRegisterNumber(token, lineNumber), true);
@@ -139,24 +139,24 @@ namespace ParseLib {
   }
   
   // Expecting [X., rX, =, X/rX, +, X/rX] OR [X., rX, =, X]
-  std::shared_ptr<AssignmentOperator> parseAssignment(const std::vector<std::string> tokens, const int& lineNumber) {
+  std::shared_ptr<AssignmentOperator> parseAssignment(const std::vector<std::string>& tokens, const int& lineNumber) {
     const int regNumber {getRegisterNumber(tokens[1], lineNumber)};
     Variable lhsVar {parseVariable(tokens[3], lineNumber)};
 
     if (tokens.size() <= 4) {
       return std::shared_ptr<AssignmentOperator> { 
-        new AssignmentOperator(regNumber, std::unique_ptr<AddOperator>(new AddOperator(lhsVar, Variable{}))) 
+        new AssignmentOperator(regNumber, std::make_unique<AddOperator>(lhsVar, Variable{}))
       };
     }
 
     Variable rhsVar {parseVariable(tokens[5], lineNumber)};
     if (tokens[4] == AddOperator::keyword) {
       return std::shared_ptr<AssignmentOperator> {
-        new AssignmentOperator(regNumber, std::unique_ptr<AddOperator>(new AddOperator(lhsVar, rhsVar)))
+        new AssignmentOperator(regNumber, std::make_unique<AddOperator>(lhsVar, rhsVar))
       };
     } else if (tokens[4] == SubtractOperator::keyword) {
       return std::shared_ptr<AssignmentOperator> {
-        new AssignmentOperator(regNumber, std::unique_ptr<SubtractOperator>(new SubtractOperator(lhsVar, rhsVar)))
+        new AssignmentOperator(regNumber, std::make_unique<SubtractOperator>(lhsVar, rhsVar))
       };
     } else {
       throw ParseException("Operator is not recognised", lineNumber);
@@ -164,7 +164,7 @@ namespace ParseLib {
   }
 
   // Handle [X. if, rX/X, </==, rX/X, goto, X]
-  std::shared_ptr<IfOperator> parseIf(const std::vector<std::string> tokens, const int& lineNumber) {
+  std::shared_ptr<IfOperator> parseIf(const std::vector<std::string>& tokens, const int& lineNumber) {
     Variable lhs {parseVariable(tokens[2], lineNumber)};
     Variable rhs {parseVariable(tokens[4], lineNumber)};
 
@@ -176,11 +176,11 @@ namespace ParseLib {
     
     if (tokens[3] == LessThanOperator::keyword) {
       return std::shared_ptr<IfOperator> {
-        new IfOperator(returnLine, std::unique_ptr<LessThanOperator>(new LessThanOperator(lhs, rhs)))
+        new IfOperator(returnLine, std::make_unique<LessThanOperator>(lhs, rhs))
       };
     } else if (tokens[3] == EqualityOperator::keyword) {
       return std::shared_ptr<IfOperator> {
-        new IfOperator(returnLine, std::unique_ptr<EqualityOperator>(new EqualityOperator(lhs, rhs)))
+        new IfOperator(returnLine, std::make_unique<EqualityOperator>(lhs, rhs))
       };
     } else {
       throw ParseException("Comparison operator expected", lineNumber);
@@ -237,7 +237,7 @@ const std::vector<int> Parser::parseDeclarationLine(std::string_view line) {
 
   while(idx < endIdx) {
     if (line[idx] == RegisterToken) {
-      std::string registerNumberStr { "" };
+      std::string registerNumberStr;
       while(line[idx] != RegisterDelimiter && line[idx] != EndBracketToken) {
         registerNumberStr += line[idx];
         idx++;
@@ -250,7 +250,7 @@ const std::vector<int> Parser::parseDeclarationLine(std::string_view line) {
   return registerNumbers; 
 }
 
-const std::vector<std::shared_ptr<Operator>> Parser::parse(const std::vector<std::string> lines) {
+const std::vector<std::shared_ptr<Operator>> Parser::parse(const std::vector<std::string>& lines) {
   std::vector<std::shared_ptr<Operator>> operators {};
   for (int i = 1; i < lines.size(); i++) {
     int lineLength { ParseLib::getLineLength(lines[i], i) };

@@ -14,11 +14,11 @@ namespace ParseLib {
   inline const int getNumber(const std::string& line, const int& lineNumber);
   inline const int getLineNumber(const std::string& line, const int& lineNumber);
   const std::vector<std::string> tokenise(const std::string_view line, const int& length);
-  const Variable parseVariable(const std::string token, const int& lineNumber);
-  std::shared_ptr<ReturnOperator> parseReturn(const std::vector<std::string> line, const int& lineNumber);
-  std::shared_ptr<GotoOperator> parseGoto(const std::vector<std::string> line, const int& lineNumber);
-  std::shared_ptr<AssignmentOperator> parseAssignment(const std::vector<std::string> tokens, const int& lineNumber);
-  std::shared_ptr<IfOperator> parseIf(const std::vector<std::string> tokens, const int& lineNumber);
+  const Variable parseVariable(const std::string& token, const int& lineNumber);
+  std::shared_ptr<ReturnOperator> parseReturn(const std::vector<std::string>& line, const int& lineNumber);
+  std::shared_ptr<GotoOperator> parseGoto(const std::vector<std::string>& line, const int& lineNumber);
+  std::shared_ptr<AssignmentOperator> parseAssignment(const std::vector<std::string>& tokens, const int& lineNumber);
+  std::shared_ptr<IfOperator> parseIf(const std::vector<std::string>& tokens, const int& lineNumber);
 }
 
 class Parser {
@@ -27,7 +27,7 @@ class Parser {
   public:
     const std::vector<int> parseInitialArgs(int argc, char **argv);
     const std::vector<int> parseDeclarationLine(std::string_view line);
-    const std::vector<std::shared_ptr<Operator>> parse(const std::vector<std::string> lines); 
+    const std::vector<std::shared_ptr<Operator>> parse(const std::vector<std::string>& lines);
 };
 
 class ParseException: public std::exception {
