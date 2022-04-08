@@ -36,7 +36,7 @@ class BinaryOperator {
 class AddOperator : public BinaryOperator {
  public:
   AddOperator(Variable lhs, Variable rhs);
-  const static std::string keyword;
+  static std::string keyword();
   size_t eval(const registers::Register &r) const override;
   virtual ~AddOperator();
 };
@@ -44,7 +44,7 @@ class AddOperator : public BinaryOperator {
 class SubtractOperator : public BinaryOperator {
  public:
   SubtractOperator(Variable lhs, Variable rhs);
-  const static std::string keyword;
+  static std::string keyword();
   size_t eval(const registers::Register &r) const override;
   virtual ~SubtractOperator();
 };
@@ -65,7 +65,7 @@ class ComparisonOperator {
 class EqualityOperator : public ComparisonOperator {
  public:
   EqualityOperator(Variable lhs, Variable rhs);
-  const static std::string keyword;
+  static std::string keyword();
   bool eval(const registers::Register &r) const override;
   virtual ~EqualityOperator();
 };
@@ -73,7 +73,7 @@ class EqualityOperator : public ComparisonOperator {
 class LessThanOperator : public ComparisonOperator {
  public:
   LessThanOperator(Variable lhs, Variable rhs);
-  const static std::string keyword;
+  static std::string keyword();
   bool eval(const registers::Register &r) const override;
   virtual ~LessThanOperator();
 };
@@ -94,7 +94,7 @@ class AssignmentOperator : public Operator {
   std::unique_ptr<BinaryOperator> op;
  public:
   AssignmentOperator(size_t regNumber, std::unique_ptr<BinaryOperator> op);
-  const static std::string keyword;
+  static std::string keyword();
   size_t exec(size_t programCounter, registers::Register &r) const override;
   virtual ~AssignmentOperator();
 };
@@ -104,7 +104,7 @@ class GotoOperator : public Operator {
   size_t lineNumber;
  public:
   explicit GotoOperator(size_t lineNumber);
-  const static std::string keyword;
+  static std::string keyword();
   size_t exec(size_t programCounter, registers::Register &r) const override;
   virtual ~GotoOperator();
 };
@@ -114,7 +114,7 @@ class ReturnOperator : public Operator {
   size_t returnRegNumber;
  public:
   explicit ReturnOperator(size_t returnRegNumber);
-  const static std::string keyword;
+  static std::string keyword();
   size_t exec(size_t programCounter, registers::Register &r) const override;
   virtual ~ReturnOperator();
 };
@@ -125,7 +125,7 @@ class IfOperator : public Operator {
   std::unique_ptr<ComparisonOperator> op;
  public:
   IfOperator(size_t lineNumber, std::unique_ptr<ComparisonOperator> op);
-  const static std::string keyword;
+  static std::string keyword();
   size_t exec(size_t programCounter, registers::Register &r) const override;
   virtual ~IfOperator();
 };

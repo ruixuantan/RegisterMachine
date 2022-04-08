@@ -132,11 +132,11 @@ std::shared_ptr<AssignmentOperator> parser::parseAssignment(const std::vector<st
   }
 
   Variable rhsVar {parseVariable(tokens[5], lineNumber)};
-  if (tokens[4] == AddOperator::keyword) {
+  if (tokens[4] == AddOperator::keyword()) {
     return std::make_shared<AssignmentOperator> (
         regNumber, std::make_unique<AddOperator>(lhsVar, rhsVar)
     );
-  } else if (tokens[4] == SubtractOperator::keyword) {
+  } else if (tokens[4] == SubtractOperator::keyword()) {
     return std::make_shared<AssignmentOperator> (
         regNumber, std::make_unique<SubtractOperator>(lhsVar, rhsVar)
     );
@@ -150,17 +150,17 @@ std::shared_ptr<IfOperator> parser::parseIf(const std::vector<std::string>& toke
   Variable lhs {parseVariable(tokens[2], lineNumber)};
   Variable rhs {parseVariable(tokens[4], lineNumber)};
 
-  if (tokens[5] != GotoOperator::keyword) {
+  if (tokens[5] != GotoOperator::keyword()) {
     throw ParseException("Goto operator expected", lineNumber);
   }
 
   size_t returnLine {getNumber(tokens[6], lineNumber)};
 
-  if (tokens[3] == LessThanOperator::keyword) {
+  if (tokens[3] == LessThanOperator::keyword()) {
     return std::make_shared<IfOperator> (
         returnLine, std::make_unique<LessThanOperator>(lhs, rhs)
     );
-  } else if (tokens[3] == EqualityOperator::keyword) {
+  } else if (tokens[3] == EqualityOperator::keyword()) {
     return std::make_shared<IfOperator> (
         returnLine, std::make_unique<EqualityOperator>(lhs, rhs)
     );
@@ -177,11 +177,11 @@ std::shared_ptr<Operator> Parser::parseLine(const std::string_view line,
   // Start token could be 'return' / 'rX' / 'goto' / 'if'
   std::string startToken { tokens[1] };
 
-  if (startToken == ReturnOperator::keyword) {
+  if (startToken == ReturnOperator::keyword()) {
     return parseReturn(tokens, lineNumber);
-  } else if (startToken == GotoOperator::keyword) {
+  } else if (startToken == GotoOperator::keyword()) {
     return parseGoto(tokens, lineNumber);
-  } else if (startToken == IfOperator::keyword) {
+  } else if (startToken == IfOperator::keyword()) {
     return parseIf(tokens, lineNumber);
   }
 

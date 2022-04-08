@@ -8,7 +8,7 @@
 using namespace registers;
 
 Register::Register() {
-  for (size_t& i : this->reg) {
+  for (size_t& i : reg) {
     i = 0;
   }
 }

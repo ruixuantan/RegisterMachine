@@ -92,7 +92,7 @@ TEST(ParserLib_test, parseIf) {
   std::shared_ptr<IfOperator> lessThanExpected {
     parseIf(lessThanStmt, mockLineNumber)
   };
-  EXPECT_TRUE(IfOperator::keyword == lessThanExpected->getKeyword());
+  EXPECT_TRUE(IfOperator::keyword() == lessThanExpected->getKeyword());
   EXPECT_EQ(9, lessThanExpected->exec(0, r));
 
   r.setRegister(10, 1);
@@ -103,7 +103,7 @@ TEST(ParserLib_test, parseIf) {
   std::shared_ptr<IfOperator> equalExpected {
     parseIf(equalStmt, mockLineNumber)
   };
-  EXPECT_TRUE(IfOperator::keyword == equalExpected->getKeyword());
+  EXPECT_TRUE(IfOperator::keyword() == equalExpected->getKeyword());
   EXPECT_EQ(9, equalExpected->exec(0, r));
 
   r.setRegister(10, 1);
