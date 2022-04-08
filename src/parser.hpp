@@ -28,11 +28,11 @@ std::shared_ptr<operators::IfOperator> parseIf(const std::vector<std::string> &t
 
 class Parser {
  private:
-  std::shared_ptr<operators::Operator> parseLine(std::string_view line, const int &length, const int &lineNumber);
+  static std::shared_ptr<operators::Operator> parseLine(std::string_view line, const int &length, const int &lineNumber);
  public:
-  std::vector<int> parseInitialArgs(int argc, char **argv);
-  std::vector<int> parseDeclarationLine(std::string_view line);
-  std::vector<std::shared_ptr<operators::Operator>> parse(const std::vector<std::string> &lines);
+  static std::vector<int> parseInitialArgs(int argc, char **argv);
+  static std::vector<int> parseDeclarationLine(std::string_view line);
+  static std::vector<std::shared_ptr<operators::Operator>> parse(const std::vector<std::string> &lines);
 };
 
 class ParseException : public std::exception {

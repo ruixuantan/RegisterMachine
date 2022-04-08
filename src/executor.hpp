@@ -11,7 +11,7 @@
 namespace executor {
 class Executor {
  public:
-  int execute(const std::vector<std::shared_ptr<operators::Operator>> &operators, registers::Register &r);
+  static int execute(const std::vector<std::shared_ptr<operators::Operator>> &operators, registers::Register &r);
 };
 
 class RuntimeException : public std::exception {

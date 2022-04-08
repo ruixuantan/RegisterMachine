@@ -4,7 +4,6 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include <exception>
 #include <string_view>
 
 using namespace parser;
@@ -15,7 +14,7 @@ std::vector<int> Parser::parseInitialArgs(int argc, char **argv) {
   for (int i = 2; i < argc; i++) {
     try {
       arguments.push_back(std::stoi(argv[i]));
-    } catch (std::invalid_argument) {
+    } catch (const std::invalid_argument&) {
       throw ParseArgsException("Arguments passed to program must be an integer");
     }
   }
@@ -60,7 +59,7 @@ int parser::getLineLength(const std::string_view line, const int& lineNumber) {
 int parser::getRegisterNumber(const std::string& registerStr, const int& lineNumber) {
   try {
     return std::stoi(registerStr.substr(1, registerStr.size()));
-  } catch (std::invalid_argument) {
+  } catch (const std::invalid_argument&) {
     throw ParseException("Register number passed is invalid", lineNumber);
   }
 }
@@ -75,7 +74,7 @@ int parser::getRegisterNumber(const std::string& registerStr, const int& lineNum
 int parser::getNumber(const std::string& numberStr, const int& lineNumber) {
   try {
     return std::stoi(numberStr);
-  } catch (std::invalid_argument) {
+  } catch (const std::invalid_argument&) {
     throw ParseException("Number passed is not an integer", lineNumber);
   }
 }
@@ -103,12 +102,12 @@ std::vector<std::string> parser::tokenise(const std::string_view line, const int
 
 // Handle [X., return, rX]
 std::shared_ptr<ReturnOperator> parser::parseReturn(const std::vector<std::string>& line, const int& lineNumber) {
-  return std::shared_ptr<ReturnOperator> { new ReturnOperator{getRegisterNumber(line[2], lineNumber)} };
+  return std::make_shared<ReturnOperator> ( getRegisterNumber(line[2], lineNumber) );
 }
 
 // Handle [X., goto, X]
 std::shared_ptr<GotoOperator> parser::parseGoto(const std::vector<std::string>& line, const int& lineNumber) {
-  return std::shared_ptr<GotoOperator> { new GotoOperator{getNumber(line[2], lineNumber)} };
+  return std::make_shared<GotoOperator> ( getNumber(line[2], lineNumber) );
 }
 
 Variable parser::parseVariable(const std::string& token, const int& lineNumber) {
@@ -127,20 +126,20 @@ std::shared_ptr<AssignmentOperator> parser::parseAssignment(const std::vector<st
   Variable lhsVar {parseVariable(tokens[3], lineNumber)};
 
   if (tokens.size() <= 4) {
-    return std::shared_ptr<AssignmentOperator> {
-        new AssignmentOperator(regNumber, std::make_unique<AddOperator>(lhsVar, Variable{}))
-    };
+    return std::make_shared<AssignmentOperator> (
+        regNumber, std::make_unique<AddOperator>(lhsVar, Variable{})
+    );
   }
 
   Variable rhsVar {parseVariable(tokens[5], lineNumber)};
   if (tokens[4] == AddOperator::keyword) {
-    return std::shared_ptr<AssignmentOperator> {
-        new AssignmentOperator(regNumber, std::make_unique<AddOperator>(lhsVar, rhsVar))
-    };
+    return std::make_shared<AssignmentOperator> (
+        regNumber, std::make_unique<AddOperator>(lhsVar, rhsVar)
+    );
   } else if (tokens[4] == SubtractOperator::keyword) {
-    return std::shared_ptr<AssignmentOperator> {
-        new AssignmentOperator(regNumber, std::make_unique<SubtractOperator>(lhsVar, rhsVar))
-    };
+    return std::make_shared<AssignmentOperator> (
+        regNumber, std::make_unique<SubtractOperator>(lhsVar, rhsVar)
+    );
   } else {
     throw ParseException("Operator is not recognised", lineNumber);
   }
@@ -158,13 +157,13 @@ std::shared_ptr<IfOperator> parser::parseIf(const std::vector<std::string>& toke
   int returnLine {getNumber(tokens[6], lineNumber)};
 
   if (tokens[3] == LessThanOperator::keyword) {
-    return std::shared_ptr<IfOperator> {
-        new IfOperator(returnLine, std::make_unique<LessThanOperator>(lhs, rhs))
-    };
+    return std::make_shared<IfOperator> (
+        returnLine, std::make_unique<LessThanOperator>(lhs, rhs)
+    );
   } else if (tokens[3] == EqualityOperator::keyword) {
-    return std::shared_ptr<IfOperator> {
-        new IfOperator(returnLine, std::make_unique<EqualityOperator>(lhs, rhs))
-    };
+    return std::make_shared<IfOperator> (
+        returnLine, std::make_unique<EqualityOperator>(lhs, rhs)
+    );
   } else {
     throw ParseException("Comparison operator expected", lineNumber);
   }
