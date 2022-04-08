@@ -5,6 +5,9 @@
 #include <memory>
 #include <utility>
 
+using namespace operators;
+using namespace registers;
+
 Variable::Variable(int value, bool isRegister)
   : value{ value }, isRegister{ isRegister } {}
 
@@ -16,7 +19,7 @@ int Variable::eval(const Register& r) const {
   }
 }
 
-bool operator== (const Variable& v1, const Variable& v2) {
+bool operators::operator== (const Variable& v1, const Variable& v2) {
   return v1.value == v2.value && v1.isRegister == v2.isRegister;
 }
 
@@ -35,7 +38,7 @@ Variable BinaryOperator::getRhs() const {
   return this->rhs;
 }
 
-bool operator== (const BinaryOperator& o1, const BinaryOperator& o2) {
+bool operators::operator== (const BinaryOperator& o1, const BinaryOperator& o2) {
   return o1.keyword == o2.keyword && o1.lhs == o2.lhs && o1.rhs == o2.rhs;
 }
 

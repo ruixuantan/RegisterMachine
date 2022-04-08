@@ -5,6 +5,10 @@
 #include <vector>
 #include <string_view>
 
+using namespace operators;
+using namespace registers;
+using namespace executor;
+
 int Executor::execute(const std::vector<std::shared_ptr<Operator>>& operators, Register& r) {
   int programCounter {0};
 

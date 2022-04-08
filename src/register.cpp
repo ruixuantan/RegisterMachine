@@ -5,6 +5,8 @@
 #include <vector>
 #include <string_view>
 
+using namespace registers;
+
 Register::Register() {
   for (int& i : this->reg) {
     i = 0;

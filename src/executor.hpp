@@ -8,17 +8,18 @@
 #include <vector>
 #include <string_view>
 
+namespace executor {
 class Executor {
-  public:
-    int execute(const std::vector<std::shared_ptr<Operator>>& operators, Register& r);
+ public:
+  int execute(const std::vector<std::shared_ptr<operators::Operator>> &operators, registers::Register &r);
 };
 
-class RuntimeException: public std::exception {
-  private:
-    std::string error;
-  public:
-    explicit RuntimeException(std::string_view error);
-    const char* what() const noexcept override;
+class RuntimeException : public std::exception {
+ private:
+  std::string error;
+ public:
+  explicit RuntimeException(std::string_view error);
+  const char *what() const noexcept override;
 };
-
+}
 #endif
