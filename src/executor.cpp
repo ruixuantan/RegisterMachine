@@ -5,29 +5,29 @@
 #include <vector>
 #include <string_view>
 
-int Executor::execute(const std::vector<std::shared_ptr<Operator>>& operators, Register& r) {
-  int programCounter {0};
+using namespace operators;
+using namespace registers;
+using namespace executor;
 
-  while(operators[programCounter]->getKeyword() != ReturnOperator::keyword) {
+size_t Executor::execute(const std::vector<std::shared_ptr<Operator>>& operators, Register& r) {
+  size_t programCounter {0};
+  while(operators[programCounter]->getKeyword() != ReturnOperator::keyword()) {
     const std::shared_ptr<Operator> op { operators[programCounter] };
     std::string currKeyword { op->getKeyword() };
-  
-    if (currKeyword == AssignmentOperator::keyword) {
+    if (currKeyword == AssignmentOperator::keyword()) {
       programCounter = op->exec(programCounter, r);
-    } else if (currKeyword == GotoOperator::keyword) {
+    } else if (currKeyword == GotoOperator::keyword()) {
       programCounter = op->exec(programCounter, r) - 1;
-    } else if (currKeyword == IfOperator::keyword) {
+    } else if (currKeyword == IfOperator::keyword()) {
       programCounter = op->exec(programCounter, r);
     } else {
       throw RuntimeException("An unknown error occurred");
     }
-
     if (programCounter >= operators.size()) {
       throw RuntimeException("Line number passed to goto command exceeded program lines");
     }
   }
-
-  int returnRegister { operators[programCounter]->exec(programCounter, r) };
+  size_t returnRegister { operators[programCounter]->exec(programCounter, r) };
   return returnRegister;
 }
 

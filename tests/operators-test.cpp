@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 #include "operators.hpp"
 
+using namespace operators;
+
 TEST(Variable_test, equality) {
   EXPECT_TRUE (Variable(3, true) == Variable(3, true));
   EXPECT_FALSE (Variable(3, true) == Variable(3, false));
