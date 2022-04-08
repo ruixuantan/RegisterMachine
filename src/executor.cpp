@@ -9,13 +9,11 @@ using namespace operators;
 using namespace registers;
 using namespace executor;
 
-int Executor::execute(const std::vector<std::shared_ptr<Operator>>& operators, Register& r) {
-  int programCounter {0};
-
+size_t Executor::execute(const std::vector<std::shared_ptr<Operator>>& operators, Register& r) {
+  size_t programCounter {0};
   while(operators[programCounter]->getKeyword() != ReturnOperator::keyword) {
     const std::shared_ptr<Operator> op { operators[programCounter] };
     std::string currKeyword { op->getKeyword() };
-  
     if (currKeyword == AssignmentOperator::keyword) {
       programCounter = op->exec(programCounter, r);
     } else if (currKeyword == GotoOperator::keyword) {
@@ -25,13 +23,11 @@ int Executor::execute(const std::vector<std::shared_ptr<Operator>>& operators, R
     } else {
       throw RuntimeException("An unknown error occurred");
     }
-
     if (programCounter >= operators.size()) {
       throw RuntimeException("Line number passed to goto command exceeded program lines");
     }
   }
-
-  int returnRegister { operators[programCounter]->exec(programCounter, r) };
+  size_t returnRegister { operators[programCounter]->exec(programCounter, r) };
   return returnRegister;
 }
 

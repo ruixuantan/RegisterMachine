@@ -28,7 +28,7 @@ void ioreader::printArgsError(const std::string_view msg) {
   std::cerr << "Argument error: " << msg << "\n";
 }
 
-void ioreader::printCompilationError(const std::string_view msg, const int& lineNumber) {
+void ioreader::printCompilationError(const std::string_view msg, const size_t& lineNumber) {
   std::cerr << "Compilation error on line: " << lineNumber << "\nError: " << msg << "\n";
 }
 
@@ -36,6 +36,6 @@ void ioreader::printRuntimeError(const std::string_view msg) {
   std::cerr << "Program terminated unsuccessfully:\n" << msg << "\n";
 }
 
-void ioreader::printRegisterError(const std::string_view msg, const int& regNumber) {
+void ioreader::printRegisterError(const std::string_view msg, const size_t& regNumber) {
   std::cerr << "Register error on r" << regNumber << ":\n" << msg << "\n";
 }

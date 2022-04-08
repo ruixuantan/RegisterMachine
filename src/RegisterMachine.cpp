@@ -16,17 +16,14 @@ using namespace ioreader;
 int main(int argc, char **argv) {
   std::string filename { argv[1] };
   Register reg{};
-  Parser parser{};
-  Executor ex{};
 
   try {
-    const std::vector<int> args { parser.parseInitialArgs(argc, argv) };
+    const std::vector<size_t> args { Parser::parseInitialArgs(argc, argv) };
     const std::vector<std::string> lines { readFile(filename) };
-    const std::vector<int> initialRegisters { parser.parseDeclarationLine(lines[0])};
-      
+    const std::vector<size_t> initialRegisters { Parser::parseDeclarationLine(lines[0])};
     reg.setRegisters(args, initialRegisters);
-    const std::vector<std::shared_ptr<operators::Operator>> operators { parser.parse(lines) };
-    const int returnRegister { ex.execute(operators, reg) };
+    const std::vector<std::shared_ptr<operators::Operator>> operators { Parser::parse(lines) };
+    const size_t returnRegister { Executor::execute(operators, reg) };
     printSuccess(reg.printRegister(returnRegister));
 
   } catch (const ParseArgsException& e) {

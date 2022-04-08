@@ -8,28 +8,28 @@
 #include <vector>
 
 namespace registers {
-constexpr int MAX_REG_SIZE{100};
+constexpr size_t MAX_REG_SIZE{1000};
 
 class Register {
  private:
-  std::array<int, MAX_REG_SIZE> reg{};
+  std::array<size_t, MAX_REG_SIZE> reg{};
  public:
   Register();
-  void setRegister(const int &value, const int &regNumber);
-  void setRegisters(const std::vector<int> &values, const std::vector<int> &regNumbers);
-  [[nodiscard]] int getRegister(const int &regNumber) const;
+  void setRegister(const size_t &value, const size_t &regNumber);
+  void setRegisters(const std::vector<size_t> &values, const std::vector<size_t> &regNumbers);
+  size_t getRegister(const size_t &regNumber) const;
 
-  std::string printRegister(const int &regNumber) const;
-  std::string printRegisters(const int &start, const int &end) const;
+  std::string printRegister(const size_t &regNumber) const;
+  std::string printRegisters(const size_t &start, const size_t &end) const;
 };
 
 class RegisterException : public std::exception {
  private:
-  int regNumber;
+  size_t regNumber;
   std::string error;
  public:
-  RegisterException(int regNumber, std::string_view error);
-  int getRegNumber() const;
+  RegisterException(size_t regNumber, std::string_view error);
+  size_t getRegNumber() const;
   const char *what() const noexcept override;
 };
 }

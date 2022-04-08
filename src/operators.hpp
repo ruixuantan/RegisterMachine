@@ -9,11 +9,11 @@
 namespace operators {
 class Variable {
  private:
-  int value;
+  size_t value;
   bool isRegister;
  public:
-  explicit Variable(int value = 0, bool isRegister = false);
-  int eval(const registers::Register &r) const;
+  explicit Variable(size_t value = 0, bool isRegister = false);
+  size_t eval(const registers::Register &r) const;
   friend bool operator==(const Variable &v1, const Variable &v2);
 };
 
@@ -29,7 +29,7 @@ class BinaryOperator {
   Variable getLhs() const;
   Variable getRhs() const;
   friend bool operator==(const BinaryOperator &o1, const BinaryOperator &o2);
-  virtual int eval(const registers::Register &r) const = 0;
+  virtual size_t eval(const registers::Register &r) const = 0;
   virtual ~BinaryOperator();
 };
 
@@ -37,7 +37,7 @@ class AddOperator : public BinaryOperator {
  public:
   AddOperator(Variable lhs, Variable rhs);
   const static std::string keyword;
-  int eval(const registers::Register &r) const override;
+  size_t eval(const registers::Register &r) const override;
   virtual ~AddOperator();
 };
 
@@ -45,7 +45,7 @@ class SubtractOperator : public BinaryOperator {
  public:
   SubtractOperator(Variable lhs, Variable rhs);
   const static std::string keyword;
-  int eval(const registers::Register &r) const override;
+  size_t eval(const registers::Register &r) const override;
   virtual ~SubtractOperator();
 };
 
@@ -84,50 +84,49 @@ class Operator {
  public:
   explicit Operator(std::string keyword);
   std::string getKeyword() const;
-  virtual int exec(int programCounter, registers::Register &r) const = 0;
+  virtual size_t exec(size_t programCounter, registers::Register &r) const = 0;
   virtual ~Operator();
 };
 
 class AssignmentOperator : public Operator {
  private:
-  int regNumber;
+  size_t regNumber;
   std::unique_ptr<BinaryOperator> op;
  public:
-  AssignmentOperator(int regNumber, std::unique_ptr<BinaryOperator> op);
+  AssignmentOperator(size_t regNumber, std::unique_ptr<BinaryOperator> op);
   const static std::string keyword;
-  int exec(int programCounter, registers::Register &r) const override;
+  size_t exec(size_t programCounter, registers::Register &r) const override;
   virtual ~AssignmentOperator();
 };
 
 class GotoOperator : public Operator {
  private:
-  int lineNumber;
+  size_t lineNumber;
  public:
-  explicit GotoOperator(int lineNumber);
+  explicit GotoOperator(size_t lineNumber);
   const static std::string keyword;
-  int exec(int programCounter, registers::Register &r) const override;
+  size_t exec(size_t programCounter, registers::Register &r) const override;
   virtual ~GotoOperator();
-
 };
 
 class ReturnOperator : public Operator {
  private:
-  int returnRegNumber;
+  size_t returnRegNumber;
  public:
-  explicit ReturnOperator(int returnRegNumber);
+  explicit ReturnOperator(size_t returnRegNumber);
   const static std::string keyword;
-  int exec(int programCounter, registers::Register &r) const override;
+  size_t exec(size_t programCounter, registers::Register &r) const override;
   virtual ~ReturnOperator();
 };
 
 class IfOperator : public Operator {
  private:
-  int lineNumber;
+  size_t lineNumber;
   std::unique_ptr<ComparisonOperator> op;
  public:
-  IfOperator(int lineNumber, std::unique_ptr<ComparisonOperator> op);
+  IfOperator(size_t lineNumber, std::unique_ptr<ComparisonOperator> op);
   const static std::string keyword;
-  int exec(int programCounter, registers::Register &r) const override;
+  size_t exec(size_t programCounter, registers::Register &r) const override;
   virtual ~IfOperator();
 };
 }
